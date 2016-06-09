@@ -1,10 +1,10 @@
 // config/database.js
 module.exports = {
     'connection': {
-        'host': 'localhost',
+        'host': '172.17.0.2',
         'user': 'root',
-        'password': 'password'
+        'password': '1234'
     },
-	'database': 'my_schema',
-    'users_table': 'users'
+	'database': 'test',
+    'users_table': 'client'
 };
