@@ -1,8 +1,9 @@
 {
-  "name": "node-authentication",
+  "name": "node-authentication12",
   "main": "server.js",
   "scripts": {
-    "start": "node ./server"
+    "start": "nodejs ./server",
+    "test": "./node_modules/.bin/mocha --reporter spec"
   },
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
@@ -17,5 +18,10 @@
     "passport": "^0.2.2",
     "passport-local": "^1.0.0",
     "minimist": "*"
+  },
+  "devDependencies": {
+    "mocha": "~2.5.3",
+    "chai": "~3.5.0",
+    "request": "~2.72.0"
   }
 }
