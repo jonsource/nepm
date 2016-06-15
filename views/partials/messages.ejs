@@ -1,0 +1,26 @@
+<% 
+function get_alert_level(message_type) {
+	var levels = {info: 'info', warning:'warning', error:'danger', success:'success'}
+	return levels[message_type] || 'warning';
+}
+function print_message(message) {
+	return '<li>' + message + '</li>';
+}
+function print_messages(messages) {
+	var keys = Object.keys(messages);
+	var ret = "";
+	for(var i in keys) {
+		if(messages[keys[i]] && messages[keys[i]].length) {
+			ret += '<div class="alert alert-' + get_alert_level(keys[i]) + '"><ul>';
+			for(var j in messages[keys[i]]) {
+				ret += print_message(messages[keys[i]][j]);
+			}
+			ret += '</ul></div>';
+		}
+	}
+	console.log(messages);
+	return ret;
+}
+%>
+
+<%- print_messages(messages); %>
