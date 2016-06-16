@@ -87,6 +87,10 @@ module.exports = function(app, passport) {
 		res.redirect('/');
 	});
 
+	app.get('/upload', function(req, res) {
+		res.render('upload.ejs');
+	});
+
 	var api = require('./apiv1')(passport);
 	app.use('/v1', api.router)
 };

@@ -17,6 +17,28 @@ module.exports = function(passport) {
 	router.get('/users', function(req, res, next) {
 		res.json({users: true});
 	});
+
+	var multer = require('multer');
+	var storage = multer.diskStorage({
+  			destination: function (req, file, callback) {
+    		callback(null, './uploads');
+  		},
+  			filename: function (req, file, callback) {
+    		callback(null, file.originalname + '-' + Date.now());
+  		}
+	});
+	var upload = multer({ storage : storage}, {limits : {fileSize : 4*1000*1000}}).single('upload');
+
+	router.post('/upload', function(req, res, next) {
+		upload(req,res,function(err) {
+	        if(err) {
+	        	console.log(err);
+	            return res.json({error: "Error uploading file."});
+	        }
+	        console.log(req.files);
+	        res.json({success: true});
+	    });
+	});
 	
 	return {
 		router: router
