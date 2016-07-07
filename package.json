@@ -19,7 +19,8 @@
     "passport-local": "^1.0.0",
     "minimist": "*",
     "multer": "*",
-    "xtend": "~4.0.1"
+    "xtend": "~4.0.1",
+    "migrate": "~0.2.3"
   },
   "devDependencies": {
     "mocha": "~2.5.3",
