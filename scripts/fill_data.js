@@ -4,7 +4,7 @@ dbconfig.connection.multipleStatements = true;
 var connection = mysql.createConnection(dbconfig.connection);
 var async = require('async');
 
-connection.query('USE ' + dbconfig.database +';');
+connection.query('USE ' + dbconfig.connection.database +';');
 
 function create_products(callback) {
 	connection.query(' \
@@ -73,12 +73,6 @@ function create_product_options(callback) {
 
 async.series([
 	function(callback) {
-		connection.query('SHOW TABLES', function(err, results) {
-			console.log(results);
-			callback(null);
-		});
-	},
-	function(callback) {
 		connection.query('\
 			SET foreign_key_checks = 0;\
 			TRUNCATE TABLE product_has_option;\
@@ -99,11 +93,13 @@ async.series([
 
 		connection.query('SELECT * FROM product AS p\
 			LEFT JOIN product_has_variant AS pv ON pv.product_id = p.id\
-			LEFT JOIN variant AS v ON v.id=pv.variant_id', function(err, results) {
-			if (err) throw err;
+			LEFT JOIN variant AS v ON v.id=pv.variant_id',
+			function(err, results) {
+				if (err) throw err;
 
-			console.log('done');
-			console.log(results);
-
-	});
-})
+				console.log('done');
+				console.log(results);
+				connection.end();
+		});
+	}
+);

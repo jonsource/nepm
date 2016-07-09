@@ -8,17 +8,17 @@ exports.up = function(next){
   	
 	async.series([
 	function(callback) {
-		connection.query('CREATE DATABASE ' + dbconfig.database, callback);	
+		connection.query('CREATE DATABASE ' + dbconfig.connection.database, callback);	
 	},
 	function(callback) {
-		connection.query('USE ' + dbconfig.database +';', function(err, result) {
+		connection.query('USE ' + dbconfig.connection.database +';', function(err, result) {
 			console.log('Success: Database Created!');	
 			callback(null, 'Success: Database Created!');
 		});
 	},
 	function(callback) {
 		connection.query('\
-		CREATE TABLE `' + dbconfig.database + '`.`' + dbconfig.users_table + '` ( \
+		CREATE TABLE `' + dbconfig.users_table + '` ( \
 		    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT, \
 		    `username` VARCHAR(20) NOT NULL, \
 		    `password` CHAR(60) NOT NULL, \
@@ -141,7 +141,7 @@ exports.up = function(next){
 };
 
 exports.down = function(next){
-  	connection.query('DROP DATABASE ' + dbconfig.database, function(err, result) {
+  	connection.query('DROP DATABASE ' + dbconfig.connection.database, function(err, result) {
   		console.log(result);
   		console.log('Success: Database Dropped!');
   		next();

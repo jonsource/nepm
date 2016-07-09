@@ -1,10 +1,12 @@
 // config/database.js
 module.exports = {
-    'connection': {
-        'host': '172.17.0.2',
-        'user': 'root',
-        'password': '1234'
+    connection: {
+    	connectionLimit : 100,
+        host: '172.17.0.2',
+        port: 3306,
+        user: 'root',
+        password: '1234',
+        database: 'test',
     },
-	'database': 'test',
-    'users_table': 'client'
+	users_table: 'client'
 };

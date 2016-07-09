@@ -9,15 +9,13 @@ var bodyParser = require('body-parser');
 var morgan = require('morgan');
 var app      = express();
 var port     = process.env.PORT || 3000;
-
 var passport = require('passport');
 var flash    = require('connect-flash');
 
+app.db_pool = require('./app/db_pool')();
 // configuration ===============================================================
 // connect to our database
-
-require('./config/passport')(passport); // pass passport for configuration
-
+require('./config/passport')(passport, app.db_pool); // pass passport for configuration
 
 
 // set up our express application
