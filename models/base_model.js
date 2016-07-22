@@ -1,22 +1,19 @@
 var promise = require('bluebird');
 
+var db_pool;
+
 BaseModel = function(data) {
 	this.data = data;
 }
 
 BaseModel.prototype.data = {};
 
-BaseModelCollection = function(db_pool, table) {
-	this.db_pool = db_pool;
+BaseModelCollection = function(table) {
 	this.table = table;
 }
 
-BaseModelCollection.prototype.findBy = function (column, value) {
-	if(typeof(value) === "string") {
-		value = '"'+value+'"'
-	}
-	var table = this.table;
-    return this.db_pool.getConnection()
+BaseModelCollection.prototype.getValid = function() {
+	return db_pool.getConnection()
     	.then( function(connection) {
     		return connection.query('SELECT * FROM `'+table+'` WHERE `'+column+'` = '+value)})
     	.then( function (data) {
@@ -24,6 +21,23 @@ BaseModelCollection.prototype.findBy = function (column, value) {
     	});
 }
 
-module.exports = function(db_pool, table) {
-	return new BaseModelCollection(db_pool, "product")
+BaseModelCollection.prototype.findBy = function(column, value) {
+	if(typeof(value) === "string") {
+		value = '"'+value+'"'
+	}
+	var table = this.table;
+    return db_pool.getConnection()
+    	.then( function(connection) {
+    		return connection.query('SELECT * FROM `'+table+'` WHERE `'+column+'` = '+value)})
+    	.then( function (data) {
+        	return new BaseModel(data);
+    	});
+}
+
+module.exports = function(pool)
+{	db_pool = pool;
+	return {
+		Collection: BaseModelCollection,
+		Model: BaseModel
+	}
 }

@@ -12,7 +12,8 @@ var port     = process.env.PORT || 3000;
 var passport = require('passport');
 var flash    = require('connect-flash');
 app.db_pool = require('./app/db_pool')();
-var modelCollection = require('./models/base_model')(app.db_pool);
+var baseModel = require('./models/base_model')(app.db_pool);
+var modelCollection = new baseModel.Collection("product");
 
 // configuration ===============================================================
 // connect to our database
