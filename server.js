@@ -12,8 +12,7 @@ var port     = process.env.PORT || 3000;
 var passport = require('passport');
 var flash    = require('connect-flash');
 app.db_pool = require('./app/db_pool')();
-var baseModel = require('./models/base_model')(app.db_pool);
-var modelCollection = new baseModel.Collection("product");
+var model = require('./models/base_model')(app.db_pool, "product");
 
 // configuration ===============================================================
 // connect to our database
@@ -48,7 +47,8 @@ require('./app/routes.js')(app, passport); // load our routes and pass in our ap
 app.listen(port);
 console.log('The magic happens on port ' + port);
 
-modelCollection.findBy('id', 3)
+console.log(model);
+model.findBy('id', 3)
 .then(function(m) {
 	console.log(m);
 })

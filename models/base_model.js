@@ -1,6 +1,7 @@
 var promise = require('bluebird');
 
 var db_pool;
+var db_table;
 
 BaseModel = function(data) {
 	this.data = data;
@@ -8,11 +9,7 @@ BaseModel = function(data) {
 
 BaseModel.prototype.data = {};
 
-BaseModelCollection = function(table) {
-	this.table = table;
-}
-
-BaseModelCollection.prototype.getValid = function() {
+getValid = function() {
 	return db_pool.getConnection()
     	.then( function(connection) {
     		return connection.query('SELECT * FROM `'+table+'` WHERE `'+column+'` = '+value)})
@@ -21,23 +18,28 @@ BaseModelCollection.prototype.getValid = function() {
     	});
 }
 
-BaseModelCollection.prototype.findBy = function(column, value) {
+findBy = function(column, value, onlyValid) {
+	if(onlyValid === null) {
+		onlyValid=true;
+	}
 	if(typeof(value) === "string") {
 		value = '"'+value+'"'
 	}
-	var table = this.table;
-    return db_pool.getConnection()
+	return db_pool.getConnection()
     	.then( function(connection) {
-    		return connection.query('SELECT * FROM `'+table+'` WHERE `'+column+'` = '+value)})
+    		return connection.query('SELECT * FROM `'+db_table+'` WHERE `'+column+'` = '+value)})
     	.then( function (data) {
         	return new BaseModel(data);
     	});
 }
 
-module.exports = function(pool)
+
+module.exports = function(pool, table)
 {	db_pool = pool;
+	db_table = table;
 	return {
-		Collection: BaseModelCollection,
-		Model: BaseModel
+		create: BaseModel,
+		getvalid: getValid,
+		findBy: findBy
 	}
 }
