@@ -18,6 +18,70 @@ module.exports = function(passport) {
 		res.json({users: true});
 	});
 
+	router.get('/products', function(req, res, next) {
+		req.app.collections.products.get()
+		.then(function(results) {
+			res.json({products: results});
+		})
+	});
+
+	router.post('/products/', function(req, res, next) {
+		var p = new req.app.models.product(req.body.product);
+		console.log('posted', req.body.product);
+		console.log('created', p);
+		req.app.collections.products.save(p)
+		.then(function(results) {
+			return req.app.collections.products.get();
+		}).then(function(results) {
+			res.json({products: results, success: true});
+		});
+	});
+
+	router.get('/products/:id', function(req, res, next) {
+		req.app.collections.products.findBy('id',req.params.id)
+		.then(function(results) {
+			res.json({products: results});
+		})
+	});
+
+	router.put('/products/:id', function(req, res, next) {
+		var id = req.params.id
+		req.app.collections.products.findBy('id', id)
+		.then(function(result) {
+			if(!result) {
+				res.json({products:[], error:'Product '+id+' not found'});
+			}
+			console.log('put', req.body.product);
+			result.update(req.body.product);
+			return req.app.collections.products.findBy('id', id);
+		}).then(function(results) {
+			res.json({products: results, success: true});
+		});
+	});
+
+	router.delete('/products/:id', function(req, res, next) {
+		var id = req.params.id
+		req.app.collections.products.findBy('id', id)
+		.then(function(result) {
+			if(!result) {
+				res.json({products:[], error:'Product '+id+' not found'});
+			}
+			console.log('delete');
+			return result.delete();
+		})
+		.then(function() {
+			return req.app.collections.products.findBy('id', id);
+		})
+		.then(function(results) {
+			if(!results)
+			{
+				res.json({products: results, success: true});
+			} else {
+				res.json({products: results, error: "Failed to delete product "+id});
+			}
+		});
+	});
+
 	var multer = require('multer');
 	var storage = multer.diskStorage({
   			destination: function (req, file, callback) {
