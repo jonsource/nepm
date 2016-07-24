@@ -11,17 +11,16 @@ var app      = express();
 var port     = process.env.PORT || 3000;
 var passport = require('passport');
 var flash    = require('connect-flash');
-app.db_pool = require('./app/db_pool')();
+var product = require('./models/product');
+app.db_pool = require('./app/db_pool');
 app.models = {
-	product: require('./models/product')
-};
-app.collections={
-	products: require('./models/base_collection')(app.db_pool, new app.models.product())
-};
-
+	product: new product()
+}
+console.log('app models', app.models);
 // configuration ===============================================================
 // connect to our database
 require('./config/passport')(passport, app.db_pool); // pass passport for configuration
+
 
 
 // set up our express application

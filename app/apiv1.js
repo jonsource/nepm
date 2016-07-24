@@ -19,26 +19,24 @@ module.exports = function(passport) {
 	});
 
 	router.get('/products', function(req, res, next) {
-		req.app.collections.products.get()
+		console.log(req.app.models);
+		req.app.models.product.get()
 		.then(function(results) {
 			res.json({products: results});
 		})
 	});
 
 	router.post('/products/', function(req, res, next) {
-		var p = new req.app.models.product(req.body.product);
-		console.log('posted', req.body.product);
-		console.log('created', p);
-		req.app.collections.products.save(p)
+		console.log(req.body.product);
+		req.app.models.product.create(JSON.parse(req.body.product))
 		.then(function(results) {
-			return req.app.collections.products.get();
-		}).then(function(results) {
+			console.log(results)
 			res.json({products: results, success: true});
 		});
 	});
 
 	router.get('/products/:id', function(req, res, next) {
-		req.app.collections.products.findBy('id',req.params.id)
+		req.app.models.product.findBy('id',req.params.id)
 		.then(function(results) {
 			res.json({products: results});
 		})
@@ -46,22 +44,25 @@ module.exports = function(passport) {
 
 	router.put('/products/:id', function(req, res, next) {
 		var id = req.params.id
-		req.app.collections.products.findBy('id', id)
+		req.app.models.product.findBy('id', id)
 		.then(function(result) {
 			if(!result) {
 				res.json({products:[], error:'Product '+id+' not found'});
 			}
 			console.log('put', req.body.product);
-			result.update(req.body.product);
-			return req.app.collections.products.findBy('id', id);
-		}).then(function(results) {
+			return result.update(req.body.product);
+		})
+		.then(function() {
+			return req.app.models.product.findBy('id', id);
+		})
+		.then(function(results) {
 			res.json({products: results, success: true});
 		});
 	});
 
 	router.delete('/products/:id', function(req, res, next) {
 		var id = req.params.id
-		req.app.collections.products.findBy('id', id)
+		req.app.models.product.findBy('id', id)
 		.then(function(result) {
 			if(!result) {
 				res.json({products:[], error:'Product '+id+' not found'});
@@ -70,7 +71,7 @@ module.exports = function(passport) {
 			return result.delete();
 		})
 		.then(function() {
-			return req.app.collections.products.findBy('id', id);
+			return req.app.models.product.findBy('id', id);
 		})
 		.then(function(results) {
 			if(!results)

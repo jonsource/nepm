@@ -1,14 +1,11 @@
 var BaseModel = require('./base_model');
-var inherits = require('util').inherits
+var inherits = require('util').inherits;
 
 function Product (data) {
-	Product.super_.call(this, data);
+	Product.super_.call(this, data, {table: "product", model: Product});
 }
 
 inherits(Product, BaseModel);
-
-Product.prototype.table = "product";
-Product.prototype.const = Product;
 
 Product.prototype.argh = function() {
 	console.log('argh');
