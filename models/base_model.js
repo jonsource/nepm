@@ -1,9 +1,51 @@
 var Promise = require('bluebird');
+var IntegrityError = require('./errors').IntegrityError;
 var db_pool = require('../app/db_pool');
 
 BaseModel = function(data, db_schema) {
 	this.schema = db_schema || { table: null, model: BaseModel };
-	this.data = data || {};
+	if(data && data.constructor != Object) {
+		this.data = Object.assign({}, data);
+	} else {
+		this.data = data || {};
+	}
+}
+
+BaseModel.prototype.get = function(property) {
+	if(typeof this.data[property] !== 'undefined') {
+		return Promise.resolve(this.data[property]);
+	}
+	if(this.schema.joins[property] !== 'undefined') {
+		var that = this;
+		var join = that.schema.joins[property];
+				
+		return db_pool.getConnection()
+    	.then( function(connection) {
+    		var query = 'SELECT * FROM `'+join.intermediate+'` AS i JOIN `'+join.target+'` as t '+
+    					'ON i.`'+join.target+'_id` = t.id '+
+    					'WHERE i.`'+join.source+'_id` = '+that.data.id;
+    		return connection.query(query)})
+    	.then( function (results) {
+        	if(join.multi) {
+    		    if(join.model) {
+        		    var ret = [];
+        			for(var i = 0; i<results.length; i++) {
+        				ret.push(new join.model(results[i]));
+        			}
+        			results = ret;
+        		}
+        		return Promise.resolve(results);
+	       	} else {
+        		if(results.length!=1) {
+        			throw IntegrityError('Expecting one item, more found!');
+        		}
+        		if(join.model) {
+        			results = new join.model(results[0]);
+        		}
+        		return Promise.resolve(results);
+        	}
+    	});
+	}
 }
 
 BaseModel.prototype.sanitize_string = function(value) {
@@ -85,7 +127,7 @@ BaseModel.prototype.update = function(data) {
 	return this.save();
 }
 
-BaseModel.prototype.get = function() {
+BaseModel.prototype.find = function() {
 	var schema = this.schema;
 	return db_pool.getConnection()
     	.then( function(connection) {
