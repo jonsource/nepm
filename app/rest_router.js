@@ -19,7 +19,7 @@ module.exports = function(path, model) {
 	});
 
 	router.post(path, function(req, res, next) {
-		model.create(JSON.parse(req.body))
+		model.create(JSON.parse(req.body[schema.name]))
 		.then(function(results) {
 			console.log(results)
 			res.json(response(results));
@@ -36,11 +36,11 @@ module.exports = function(path, model) {
 	router.put(path+'/:id', function(req, res, next) {
 		var id = req.params.id
 		model.findBy('id', id)
-		.then(function(result) {
-			if(!result) {
+		.then(function(results) {
+			if(!results) {
 				res.json({products:[], error: schema.name+' '+id+' not found'});
 			}
-			return result.update(req.body);
+			return results[0].update(JSON.parse(req.body[schema.name]));
 		})
 		.then(function() {
 			return model.findBy('id', id);
@@ -57,7 +57,7 @@ module.exports = function(path, model) {
 			if(!results) {
 				res.json(response(results, {error: schema.name+' '+id+' not found'}));
 			}
-			return result.delete();
+			return results[0].delete();
 		})
 		.then(function() {
 			return model.findBy('id', id);

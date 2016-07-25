@@ -8,7 +8,7 @@ BaseModel = function(data, db_schema) {
 
 BaseModel.prototype.sanitize_string = function(value) {
 	if(typeof(value) === "string") {
-    	value = '"'+str.replace(/"/g, '\\"')+'"';
+    	value = '"'+value.replace(/"/g, '\\"')+'"';
    	}
    	return value;
 }
@@ -51,9 +51,9 @@ BaseModel.prototype.save = function() {
 	var query="";
 	console.log('saving', this);
 	if(this.data.id) {
-		query = 'UPDATE INTO `'+this.schema.table+'` SET '+set_values_update(this.data)+' WHERE id = '+this.data.id+' LIMIT 1';
+		query = 'UPDATE `'+this.schema.table+'` SET '+this.prepare_values_update()+' WHERE id = '+this.data.id+' LIMIT 1';
 	} else {
-		query = 'INSERT INTO `'+this.schema.table+'` '+prepare_values_insert(this.data);
+		query = 'INSERT INTO `'+this.schema.table+'` '+this.prepare_values_insert();
 	}
 	console.log(query);
 	var that = this;
@@ -71,13 +71,18 @@ BaseModel.prototype.save = function() {
 
 BaseModel.prototype.delete = function() {
 	this.data.deleted = true;
-	return this.save().then(function() {return true;});
+	return this.save().then(function() {return new Promise.resolve(true)});
 }
 
 BaseModel.prototype.create = function(data) {
 	ret = new this.schema.model(data);
 	ret.schema = this.schema;
 	return ret.save();
+}
+
+BaseModel.prototype.update = function(data) {
+	Object.assign(this.data, data);
+	return this.save();
 }
 
 BaseModel.prototype.get = function() {
