@@ -6,54 +6,45 @@ BaseModel = function(data, db_schema) {
 	this.data = data || {};
 }
 
-function sanitize_string(value) {
+BaseModel.prototype.sanitize_string = function(value) {
 	if(typeof(value) === "string") {
     	value = '"'+str.replace(/"/g, '\\"')+'"';
    	}
    	return value;
 }
 
-function prepare_values_insert(data) {
+BaseModel.prototype.prepare_values_insert = function(data) {
 	var cols = [];
 	var vals = [];
+	if(!data) {
+		data = this.data;
+	}
 	for (var key in data) {
   		if(key == 'id') {
   			continue;
   		}
   		if (data.hasOwnProperty(key)) {
     		cols.push('`'+key+'`');
-    		vals.push(sanitize_string(data[key]));
+    		vals.push(this.sanitize_string(data[key]));
   		}
 	}
 	return '('+cols.join(', ')+') VALUES ('+vals.join(', ')+')';
 }
 
-function prepare_values_update(data) {
+BaseModel.prototype.prepare_values_update = function(data) {
 	var set = [];
+	if(!data) {
+		data = this.data;
+	}
 	for (var key in data) {
   		if(key == 'id') {
   			continue;
   		}
   		if (data.hasOwnProperty(key)) {
-    		set.push('`'+key+'` = '+sanitize_string(data[key]));
+    		set.push('`'+key+'` = '+this.sanitize_string(data[key]));
     	}
 	}
 	return set.join(', ');
-}
-
-function prepare_values_insert(data) {
-	var cols = [];
-	var vals = [];
-	for (var key in data) {
-  		if(key == 'id') {
-  			continue;
-  		}
-  		if (data.hasOwnProperty(key)) {
-    		cols.push(key);
-    		vals.push(sanitize_string(data[key]));
-  		}
-	}
-	return '('+cols.join(', ')+') VALUES ('+vals.join(', ')+')';
 }
 
 BaseModel.prototype.save = function() {

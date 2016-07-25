@@ -91,6 +91,5 @@ module.exports = function(app, passport) {
 		res.render('upload.ejs');
 	});
 
-	var api = require('./apiv1')(passport);
-	app.use('/v1', api.router)
+	app.use('/v1', require('./apiv1')(app.models));
 };

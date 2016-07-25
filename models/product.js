@@ -2,7 +2,7 @@ var BaseModel = require('./base_model');
 var inherits = require('util').inherits;
 
 function Product (data) {
-	Product.super_.call(this, data, {table: "product", model: Product});
+	Product.super_.call(this, data, {table: "product", model: Product, name:"product", plural: "products"});
 }
 
 inherits(Product, BaseModel);

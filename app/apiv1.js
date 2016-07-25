@@ -1,7 +1,7 @@
 var express = require('express');
 var authentication = require('./authentication');
 
-module.exports = function(passport) {
+module.exports = function(models) {
 	
 	var router = express.Router({mergeParams: true});
 
@@ -18,70 +18,7 @@ module.exports = function(passport) {
 		res.json({users: true});
 	});
 
-	router.get('/products', function(req, res, next) {
-		console.log(req.app.models);
-		req.app.models.product.get()
-		.then(function(results) {
-			res.json({products: results});
-		})
-	});
-
-	router.post('/products/', function(req, res, next) {
-		console.log(req.body.product);
-		req.app.models.product.create(JSON.parse(req.body.product))
-		.then(function(results) {
-			console.log(results)
-			res.json({products: results, success: true});
-		});
-	});
-
-	router.get('/products/:id', function(req, res, next) {
-		req.app.models.product.findBy('id',req.params.id)
-		.then(function(results) {
-			res.json({products: results});
-		})
-	});
-
-	router.put('/products/:id', function(req, res, next) {
-		var id = req.params.id
-		req.app.models.product.findBy('id', id)
-		.then(function(result) {
-			if(!result) {
-				res.json({products:[], error:'Product '+id+' not found'});
-			}
-			console.log('put', req.body.product);
-			return result.update(req.body.product);
-		})
-		.then(function() {
-			return req.app.models.product.findBy('id', id);
-		})
-		.then(function(results) {
-			res.json({products: results, success: true});
-		});
-	});
-
-	router.delete('/products/:id', function(req, res, next) {
-		var id = req.params.id
-		req.app.models.product.findBy('id', id)
-		.then(function(result) {
-			if(!result) {
-				res.json({products:[], error:'Product '+id+' not found'});
-			}
-			console.log('delete');
-			return result.delete();
-		})
-		.then(function() {
-			return req.app.models.product.findBy('id', id);
-		})
-		.then(function(results) {
-			if(!results)
-			{
-				res.json({products: results, success: true});
-			} else {
-				res.json({products: results, error: "Failed to delete product "+id});
-			}
-		});
-	});
+	router.use('/', require('./rest_router')('/products', models.product));
 
 	var multer = require('multer');
 	var storage = multer.diskStorage({
@@ -105,7 +42,5 @@ module.exports = function(passport) {
 	    });
 	});
 	
-	return {
-		router: router
-	}
+	return router;
 }
