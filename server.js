@@ -51,11 +51,23 @@ require('./app/routes.js')(app, passport); // load our routes and pass in our ap
 app.listen(port);
 console.log('The magic happens on port ' + port);
 
+var promise = require('bluebird');
+
 app.models.product.findBy('id', 1)
 .then(function(pro) {
 	pro = pro[0];
 	console.log('pro', pro);
 	/*pro.get("name").then(function(res) {console.log(res)});
 	pro.get("tags").then(res => {console.log(res)});*/
-	pro.get("variants").then(res => {console.log(res)});
+	pro.get("variants").then(function(res) {
+		console.log('variants',res);
+		promise.mapSeries(res, function(val) {
+			return val.get("options").then(function() {return val;});
+		})
+		.then(function(res) {
+			console.log(res);
+			console.log(res[0].data);
+		});
+	});
+
 });

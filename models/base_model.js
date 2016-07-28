@@ -18,12 +18,18 @@ BaseModel.prototype.get = function(property) {
 	if(this.schema.joins[property] !== 'undefined') {
 		var that = this;
 		var join = that.schema.joins[property];
+		console.log(join);
+		var wheres = ['i.`'+join.source+'_id` = '+that.data.id];
+		if(join.where) {
+			console.log('WHERE');
+			wheres.push(join.where(this));
+		}
 				
 		return db_pool.getConnection()
     	.then( function(connection) {
     		var query = 'SELECT * FROM `'+join.intermediate+'` AS i JOIN `'+join.target+'` as t '+
     					'ON i.`'+join.target+'_id` = t.id '+
-    					'WHERE i.`'+join.source+'_id` = '+that.data.id;
+    					'WHERE '+wheres.join(' AND ');
     		return connection.query(query)})
     	.then( function (results) {
         	if(join.multi) {
@@ -34,6 +40,7 @@ BaseModel.prototype.get = function(property) {
         			}
         			results = ret;
         		}
+        		that.data[property] = results;
         		return Promise.resolve(results);
 	       	} else {
         		if(results.length!=1) {
@@ -42,6 +49,7 @@ BaseModel.prototype.get = function(property) {
         		if(join.model) {
         			results = new join.model(results[0]);
         		}
+        		that.data[property] = results;
         		return Promise.resolve(results);
         	}
     	});

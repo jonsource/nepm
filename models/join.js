@@ -10,6 +10,7 @@ Join = function(opts) {
 	}
 	this.multi = opts.multi;
 	this.intermediate = opts.intermediate || this.source+'_has_'+this.target;
+	this.where = opts.where;
 }
 
 module.exports = Join;
