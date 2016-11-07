@@ -12,7 +12,7 @@ module.exports = function(path, model) {
 	}
 
 	router.get(path, function(req, res, next) {
-		model.get()
+		model.find()
 		.then(function(results) {
 			res.json(response(results));
 		})
