@@ -11,7 +11,7 @@ exports.up = function(next){
   	
 	async.series([
 		function(callback) {
-			connection.query('CREATE DATABASE ' + dbconfig.connection.database, callback);	
+			connection.query('CREATE DATABASE ' + dbconfig.connection.database + ' CHARACTER SET utf8 COLLATE utf8_general_ci;', callback);	
 		},
 		function(callback) {
 			connection.query('USE ' + dbconfig.connection.database +';', function(err, result) {
