@@ -11,6 +11,7 @@ Join = function(opts) {
 	this.multi = opts.multi;
 	this.intermediate = opts.intermediate || this.source+'_has_'+this.target;
 	this.where = opts.where;
+	this.api_accessible = opts.api_accessible;
 }
 
 module.exports = Join;

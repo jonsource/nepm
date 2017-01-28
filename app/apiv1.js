@@ -19,6 +19,7 @@ module.exports = function(models) {
 	});
 
 	router.use('/', require('./rest_router')('/products', models.product));
+	router.use('/', require('./rest_router')('/variants', models.variant));
 
 	var multer = require('multer');
 	var storage = multer.diskStorage({

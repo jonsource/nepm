@@ -12,9 +12,11 @@ var port     = process.env.PORT || 3000;
 var passport = require('passport');
 var flash    = require('connect-flash');
 var product = require('./models/product');
+var variant = require('./models/variant');
 app.db_pool = require('./app/db_pool');
 app.models = {
-	product: new product()
+	product: new product(),
+	variant: new variant()
 }
 console.log('app models', app.models);
 // configuration ===============================================================

@@ -55,6 +55,7 @@ exports.up = function(next){
 				`product_id` INTEGER NULL DEFAULT NULL, \
 				`order_item_option_id` INTEGER NULL DEFAULT NULL, \
 				`quantity` INTEGER NOT NULL, \
+				`unit_price` DECIMAL(6.2) NOT NULL, \
 				PRIMARY KEY (`id`) \
 			)', callback);
 		},
