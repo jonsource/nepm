@@ -18,9 +18,12 @@ module.exports = function(models) {
 		res.json({users: true});
 	});
 
-	router.use('/', require('./rest_router')('/products', models.product));
-	router.use('/', require('./rest_router')('/variants', models.variant));
-
+	for(model in models) {
+		if(models.hasOwnProperty(model)) {
+			router.use('/', require('./rest_router')('/'+models[model].schema.plural, models[model]));
+		}
+	}
+	
 	var multer = require('multer');
 	var storage = multer.diskStorage({
   			destination: function (req, file, callback) {

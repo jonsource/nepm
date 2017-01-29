@@ -13,11 +13,28 @@ module.exports = function(path, model, parent) {
 		return ret;
 	}
 
+	function lazy_load_properties(results, req) {
+		var lazy_load = [];
+		if(req.query.load) {
+			lazy_load = req.query.load.split(',');
+		}
+		return promise.map(results, function(result) {
+   		 	return promise.map(lazy_load, function(property) {
+    			return result.get(property);
+    		});
+		})
+	}
+
 	router.get(path, function(req, res, next) {
+		var objects;
 		model.find()
 		.then(function(results) {
-			res.json(response(results));
+			objects = results;
+			return lazy_load_properties(results, req);
 		})
+		.then(function(results) {
+			res.json(response(objects));
+		});
 	});
 
 	router.post(path, function(req, res, next) {
@@ -74,7 +91,7 @@ module.exports = function(path, model, parent) {
 			res.json(response(results));
 		});
 	});
-
+ 
 	router.delete(path+'/:id', function(req, res, next) {
 		var id = req.params.id
 		model.find_by('id', id)

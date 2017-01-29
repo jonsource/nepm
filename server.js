@@ -63,7 +63,7 @@ var promise = require('bluebird');
 
 /*
 Test lazy loading m:n properties
-*/
+
 app.models.product.find_by('id', 1)
 .then(function(pro) {
 	pro = pro[0];
@@ -80,11 +80,11 @@ app.models.product.find_by('id', 1)
 	});
 
 });
-
+*/
 
 /*
 Test lazy loading 1:n properties
-*/
+
 app.models.customer.find_by('id', 3)
 .then(function(cus) {
 	cus = cus[0];
@@ -94,3 +94,4 @@ app.models.customer.find_by('id', 3)
 		console.log('cus2', cus);
 	});
 });
+*/
