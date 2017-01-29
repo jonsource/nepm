@@ -11,12 +11,18 @@ var app      = express();
 var port     = process.env.PORT || 3000;
 var passport = require('passport');
 var flash    = require('connect-flash');
-var product = require('./models/product');
-var variant = require('./models/variant');
+var Product = require('./models/product');
+var Variant = require('./models/variant');
+var Customer = require('./models/customer');
+var Order = require('./models/order');
+var OrderItem = require('./models/order_item');
 app.db_pool = require('./app/db_pool');
 app.models = {
-	product: new product(),
-	variant: new variant()
+	product: new Product(),
+	variant: new Variant(),
+	customer: new Customer(),
+	order: new Order(),
+	order_item: new OrderItem(),
 }
 console.log('app models', app.models);
 // configuration ===============================================================
@@ -55,12 +61,13 @@ console.log('The magic happens on port ' + port);
 
 var promise = require('bluebird');
 
-app.models.product.findBy('id', 1)
+/*
+Test lazy loading m:n properties
+*/
+app.models.product.find_by('id', 1)
 .then(function(pro) {
 	pro = pro[0];
 	console.log('pro', pro);
-	/*pro.get("name").then(function(res) {console.log(res)});
-	pro.get("tags").then(res => {console.log(res)});*/
 	pro.get("variants").then(function(res) {
 		console.log('variants',res);
 		promise.mapSeries(res, function(val) {
@@ -72,4 +79,18 @@ app.models.product.findBy('id', 1)
 		});
 	});
 
+});
+
+
+/*
+Test lazy loading 1:n properties
+*/
+app.models.customer.find_by('id', 3)
+.then(function(cus) {
+	cus = cus[0];
+	console.log('cus', cus);
+	cus.get("orders").then(function(res) {
+		console.log('orders',res);
+		console.log('cus2', cus);
+	});
 });

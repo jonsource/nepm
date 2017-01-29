@@ -16,10 +16,52 @@ BaseModel.prototype.get = function(property) {
 		return Promise.resolve(this.data[property]);
 	}
 	if(this.schema.joins[property] !== 'undefined') {
+		
+		function assign_results(results, that, property) {
+            var join = that.schema.joins[property];
+            if(join.model) {
+    		    var ret = [];
+    			for(var i = 0; i<results.length; i++) {
+    				ret.push(new join.model(results[i]));
+    			}
+    			results = ret;
+    		}
+    		that.data[property] = results;
+    		return Promise.resolve(results);
+	    }
+
 		var that = this;
 		var join = that.schema.joins[property];
+		var wheres, table, result;
 		console.log(join);
-		var wheres = ['i.`'+join.source+'_id` = '+that.data.id];
+		
+		if(join.multi) {
+			wheres = ['i.`'+join.source+'_id` = '+that.data.id];
+			table = join.intermediate;
+			if(join.where) {
+				console.log('WHERE');
+				wheres.push(join.where(this));
+			}
+					
+			return db_pool.getConnection()
+	    	.then( function(connection) {
+	    		var query = 'SELECT * FROM `'+table+'` AS i JOIN `'+join.target+'` as t '+
+	    					'ON i.`'+join.target+'_id` = t.id '+
+	    					'WHERE '+wheres.join(' AND ');
+	    		return connection.query(query)})
+	    	.then( function(results) {
+	    		return assign_results(results, that, property);
+	    	});
+	    }
+
+	    if(join.source) {
+	    	wheres = ['t.`id` = '+that.data[join.source+'_id']];
+	    	table = join.source;
+	    } else {
+	    	wheres = ['t.`'+that.schema.table+'_id` = '+that.data.id];
+	    	table = join.target;
+	    }
+	    
 		if(join.where) {
 			console.log('WHERE');
 			wheres.push(join.where(this));
@@ -27,31 +69,11 @@ BaseModel.prototype.get = function(property) {
 				
 		return db_pool.getConnection()
     	.then( function(connection) {
-    		var query = 'SELECT * FROM `'+join.intermediate+'` AS i JOIN `'+join.target+'` as t '+
-    					'ON i.`'+join.target+'_id` = t.id '+
+    		var query = 'SELECT * FROM `'+table+'` AS t ' +
     					'WHERE '+wheres.join(' AND ');
     		return connection.query(query)})
-    	.then( function (results) {
-        	if(join.multi) {
-    		    if(join.model) {
-        		    var ret = [];
-        			for(var i = 0; i<results.length; i++) {
-        				ret.push(new join.model(results[i]));
-        			}
-        			results = ret;
-        		}
-        		that.data[property] = results;
-        		return Promise.resolve(results);
-	       	} else {
-        		if(results.length!=1) {
-        			throw IntegrityError('Expecting one item, more found!');
-        		}
-        		if(join.model) {
-        			results = new join.model(results[0]);
-        		}
-        		that.data[property] = results;
-        		return Promise.resolve(results);
-        	}
+    	.then( function(results) {
+    		return assign_results(results, that, property);
     	});
 	}
 }
@@ -113,7 +135,7 @@ BaseModel.prototype.save = function() {
 		.then( function(result) {
 			console.log(result);
 			if(result.insertId) {
-				return that.findBy('id', result.insertId);
+				return that.find_by('id', result.insertId);
 			} 
 		});
 	})
@@ -149,7 +171,7 @@ BaseModel.prototype.find = function() {
     	});
 }
 
-BaseModel.prototype.findBy = function(column, value, onlyValid) {
+BaseModel.prototype.find_by = function(column, value, onlyValid) {
 	if(onlyValid === null) {
 		onlyValid=true;
 	}

@@ -1,26 +1,30 @@
 var BaseModel = require('./base_model');
 var Join = require('./join');
 var inherits = require('util').inherits;
-var Variant = require('./variant');
+var OrderItem = require('./order_item');
+var Customer = require('./customer');
 
-function Product (data) {
-	Product.super_.call(this, data, 
-		{	table: "product", 
-			model: Product,
-			name:"product",
-			plural: "products",
+function Order (data) {
+	Order.super_.call(this, data, 
+		{	table: "order", 
+			model: Order,
+			name: "order",
+			plural: "orders",
 			joins: {
-				tags: new Join({source: "product", target: 'tag', multi: true}),
-				options: new Join({source: "product", target: 'option', multi: true}),
-				variants: new Join({source: "product", target: 'variant', multi: true, model: new Variant()})
+				items: new Join({target: "order_item", multi: false, model: OrderItem}),
+				customer: new Join({source: "customer", multi: false, model: Customer})
 			}
 		});
 }
 
-inherits(Product, BaseModel);
+inherits(Order, BaseModel);
 
-Product.prototype.argh = function() {
-	console.log('argh');
+Order.prototype.create = function(data) {
+	
+	/*ret = new this.schema.model(data);
+	ret.schema = this.schema;
+	return ret.save();*/
+	return data;
 }
 
-module.exports = Product
+module.exports = Order

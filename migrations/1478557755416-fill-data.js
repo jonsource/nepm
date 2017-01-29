@@ -66,6 +66,22 @@ exports.up = function(next){
 					(17, 3, 3, 1.0),\
 					(18, 3, 4, 2.5);\
 			', callback);
+		},
+		function create_customers(callback) {
+			connection.query(' \
+			INSERT INTO `customer` (`id`, `name`, `email`) VALUES\
+				(1, "pepik", "pepik@seznam.cz"),\
+				(2, "lojzik", "lojzik@seznam.cz"),\
+				(3, "amalka", "amalka@seznam.cz");\
+			', callback);
+		},
+		function create_orders(callback) {
+			connection.query(' \
+			INSERT INTO `order` (`id`, `customer_id`) VALUES\
+				(1, 1),\
+				(2, 3),\
+				(3, 3);\
+			', callback);
 		}],
 		function(err, results) { 
   			if(err) { throw err; }
@@ -86,6 +102,8 @@ exports.down = function(next){
 				TRUNCATE TABLE `option`;\
 				TRUNCATE TABLE `variant`;\
 				TRUNCATE TABLE `product`;\
+				TRUNCATE TABLE `customer`;\
+				TRUNCATE TABLE `order`;\
 				SET foreign_key_checks = 1;\
 			', callback);
 		}],

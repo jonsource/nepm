@@ -14,7 +14,6 @@ module.exports = function(path, model, parent) {
 	}
 
 	router.get(path, function(req, res, next) {
-		console.log("model", model);
 		model.find()
 		.then(function(results) {
 			res.json(response(results));
@@ -38,7 +37,7 @@ module.exports = function(path, model, parent) {
 				console.log("model.joins["+join_name+"]");
 				//router.get(path+'/:id', require('./rest_router')(path+'/:id/'+join.model.plural, join.model));
 					router.get(path+'/:id/'+join_name, function(req, res, next) {
-					model.findBy('id',req.params.id)
+					model.find_by('id',req.params.id)
 					.then(function(results) {
 						promise.mapSeries(results, function(val) {
 							return val.get(join_name);
@@ -53,19 +52,15 @@ module.exports = function(path, model, parent) {
 	}
 
 	router.get(path+'/:id', function(req, res, next) {
-		model.findBy('id',req.params.id)
+		model.find_by('id',req.params.id)
 		.then(function(results) {
 			res.json(response(results));
 		})
 	});
 
-	router.get(path+'/:id/prdel', function(req, res, next) {
-		res.json("zlo");
-	});
-
     router.put(path+'/:id', function(req, res, next) {
 		var id = req.params.id
-		model.findBy('id', id)
+		model.find_by('id', id)
 		.then(function(results) {
 			if(!results) {
 				res.json({products:[], error: schema.name+' '+id+' not found'});
@@ -73,7 +68,7 @@ module.exports = function(path, model, parent) {
 			return results[0].update(JSON.parse(req.body[schema.name]));
 		})
 		.then(function() {
-			return model.findBy('id', id);
+			return model.find_by('id', id);
 		})
 		.then(function(results) {
 			res.json(response(results));
@@ -82,7 +77,7 @@ module.exports = function(path, model, parent) {
 
 	router.delete(path+'/:id', function(req, res, next) {
 		var id = req.params.id
-		model.findBy('id', id)
+		model.find_by('id', id)
 		.then(function(results) {
 			if(!results) {
 				res.json(response(results, {error: schema.name+' '+id+' not found'}));
@@ -90,7 +85,7 @@ module.exports = function(path, model, parent) {
 			return results[0].delete();
 		})
 		.then(function() {
-			return model.findBy('id', id);
+			return model.find_by('id', id);
 		})
 		.then(function(results) {
 			if(!results)

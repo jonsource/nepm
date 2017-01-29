@@ -19,8 +19,4 @@ function Product (data) {
 
 inherits(Product, BaseModel);
 
-Product.prototype.argh = function() {
-	console.log('argh');
-}
-
 module.exports = Product
