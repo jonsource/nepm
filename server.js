@@ -13,6 +13,7 @@ var passport = require('passport');
 var flash    = require('connect-flash');
 var Product = require('./models/product');
 var Variant = require('./models/variant');
+var Option = require('./models/option');
 var Customer = require('./models/customer');
 var Order = require('./models/order');
 var OrderItem = require('./models/order_item');
@@ -20,6 +21,7 @@ app.db_pool = require('./app/db_pool');
 app.models = {
 	product: new Product(),
 	variant: new Variant(),
+	option: new Option(),
 	customer: new Customer(),
 	order: new Order(),
 	order_item: new OrderItem(),
