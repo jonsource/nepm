@@ -13,6 +13,7 @@ BaseModel = function(data, db_schema) {
 
 BaseModel.prototype.get = function(property) {
 	if(typeof this.data[property] !== 'undefined') {
+		//return Promise.resolve(this.data[property]);
 		return Promise.resolve(this.data[property]);
 	}
 	if(this.schema.joins[property] !== 'undefined') {
@@ -27,7 +28,8 @@ BaseModel.prototype.get = function(property) {
     			results = ret;
     		}
     		that.data[property] = results;
-    		return Promise.resolve(results);
+    		//return Promise.resolve(results);
+    		return results;
 	    }
 
 		var that = this;

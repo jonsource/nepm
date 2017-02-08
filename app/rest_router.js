@@ -14,18 +14,37 @@ module.exports = function(path, model, parent) {
 	}
 
 	function lazy_load_mw(req, res, next) {
-		//console.log("lazy_load_mw");
+		console.log("lazy_load_mw");
+
+		function lazy_load_chain(chain, object) {
+			//console.log('lazy_load_chain', chain);
+			var parts = chain.split('.');
+			var property = parts.shift();
+			chain = parts.join('.');
+			if(chain) {
+				return object.get(property)
+				.then(function() {
+					return promise.map(object.data[property], function(loaded_property) {
+						return lazy_load_chain(chain, loaded_property);
+					});
+				});
+			}
+			else {
+				return object.get(property)
+			}
+		}
+		
 		var lazy_load = [];
 		if(req.query.load) {
 			lazy_load = req.query.load.split(',');
 		} else {
 			next();
 		}
-		promise.map(res.api_response.results, function(result) {
-   		 	return promise.map(lazy_load, function(property) {
-    			console.log('get '+property);
-    			return result.get(property);
-    		});
+		
+		promise.map(res.api_response.results, function(object) {
+			return promise.map(lazy_load, function(chain) {
+				return lazy_load_chain(chain, object);
+			})
 		})
 		.then(function() {
 			next();

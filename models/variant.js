@@ -1,6 +1,7 @@
 var BaseModel = require('./base_model');
 var Join = require('./join');
 var inherits = require('util').inherits;
+var Option = require('./option');
 
 function Variant(data) {
 	Variant.super_.call(this, data, 
@@ -9,7 +10,7 @@ function Variant(data) {
 			name: "variant",
 			plural: "variants",
 			joins: {
-				options: new Join({source: "product", target: 'option', multi: true, where: function(variant) {return 'variant_id = '+variant.data.id;} }),
+				options: new Join({target: 'option', multi: false, where: function(variant) {return 'variant_id = '+variant.data.id;}, model: Option }),
 			}
 		});
 }

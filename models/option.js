@@ -9,7 +9,7 @@ function Option(data) {
 			name: "option",
 			plural: "options",
 			joins: {
-				variants: new Join({source: "product", target: 'variant', multi: true, where: function(option) {return 'option_id = '+option.data.id;} }),
+				
 			}
 		});
 }
