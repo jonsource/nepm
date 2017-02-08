@@ -13,7 +13,6 @@ BaseModel = function(data, db_schema) {
 
 BaseModel.prototype.get = function(property) {
 	if(typeof this.data[property] !== 'undefined') {
-		//return Promise.resolve(this.data[property]);
 		return Promise.resolve(this.data[property]);
 	}
 	if(this.schema.joins[property] !== 'undefined') {
@@ -28,26 +27,29 @@ BaseModel.prototype.get = function(property) {
     			results = ret;
     		}
     		that.data[property] = results;
-    		//return Promise.resolve(results);
     		return results;
 	    }
 
 		var that = this;
 		var join = that.schema.joins[property];
-		var wheres, table, result;
+		var wheres = [], from, result;
 		console.log(join);
 		
 		if(join.multi) {
-			wheres = ['i.`'+join.source+'_id` = '+that.data.id];
-			table = join.intermediate;
+			if(join.from) {
+				from = join.from(this);
+			} else {
+				from = join.intermediate;
+			}
 			if(join.where) {
-				console.log('WHERE');
 				wheres.push(join.where(this));
+			} else {
+				wheres = ['i.`'+join.source+'_id` = '+that.data.id];
 			}
 					
 			return db_pool.getConnection()
 	    	.then( function(connection) {
-	    		var query = 'SELECT * FROM `'+table+'` AS i JOIN `'+join.target+'` as t '+
+	    		var query = 'SELECT * FROM '+from+' AS i JOIN `'+join.target+'` as t '+
 	    					'ON i.`'+join.target+'_id` = t.id '+
 	    					'WHERE '+wheres.join(' AND ');
 	    		return connection.query(query)})
@@ -65,7 +67,6 @@ BaseModel.prototype.get = function(property) {
 	    }
 	    
 		if(join.where) {
-			console.log('WHERE');
 			wheres.push(join.where(this));
 		}
 				

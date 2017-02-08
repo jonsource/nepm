@@ -10,7 +10,20 @@ function Variant(data) {
 			name: "variant",
 			plural: "variants",
 			joins: {
-				options: new Join({target: 'option', multi: false, where: function(variant) {return 'variant_id = '+variant.data.id;}, model: Option }),
+				options: new Join({source: 'product', target: 'option', multi: true,
+					where: function(variant) {
+						if(variant.data['product_id']) {
+							return 'variant_id = '+variant.data.id+' AND product_id = '+variant.data.product_id;
+						}
+						return 'variant_id = '+variant.data.id;
+					},
+					/*from: function(variant) {
+						if(variant.data['product_id']) {
+							return 'fFROMf';
+						}
+						return 'option';
+					},*/
+					model: Option }),
 			}
 		});
 }
