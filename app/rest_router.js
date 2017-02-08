@@ -6,36 +6,79 @@ module.exports = function(path, model, parent) {
 	var router = express.Router({mergeParams: true});
 	var schema = model.schema;
 
-	function response(results, other, name) {
-		var ret = other || {};
-		if(!name) name = schema.plural;
-		ret[name] = results;
-		return ret;
+	function json_data(req, res, next) {
+		//console.log("json_data");
+		var ret={};
+		ret[res.api_response.name] = res.api_response.results;
+		res.json(ret);
 	}
 
-	function lazy_load_properties(results, req) {
+	function lazy_load_mw(req, res, next) {
+		//console.log("lazy_load_mw");
 		var lazy_load = [];
 		if(req.query.load) {
 			lazy_load = req.query.load.split(',');
+		} else {
+			next();
 		}
-		return promise.map(results, function(result) {
+		promise.map(res.api_response.results, function(result) {
    		 	return promise.map(lazy_load, function(property) {
+    			console.log('get '+property);
     			return result.get(property);
     		});
 		})
+		.then(function() {
+			next();
+		});
 	}
 
-	router.get(path, function(req, res, next) {
-		var objects;
-		model.find()
-		.then(function(results) {
-			objects = results;
-			return lazy_load_properties(results, req);
-		})
-		.then(function(results) {
-			res.json(response(objects));
-		});
+	function shift_data_up(object) {
+		var short_object = object;
+		if(object.data && object.schema) {
+			object = object.data;
+			short_object = {id:object.id, name: object.name};
+		}
+		for (var child in object) {
+			if(object.hasOwnProperty(child) && object[child] && typeof object[child] === 'object') {
+				//console.log('shifting '+child);
+				short_object[child] = shift_data_up(object[child]);
+			}
+		}
+		return short_object;
+	}
+
+	function shorten_output(req, res, next) {
+		//console.log("shorten_output");
+		if(!req.query.hasOwnProperty('v')) {
+			res.api_response.results = shift_data_up(res.api_response.results);
+		}
+		next();
+	}
+
+	router.use(path, function(req, res, next) {
+		console.log("api_response");
+		res.api_response = {};
+		res.api_response.results = {};
+		res.api_response.name = schema.plural;
+		next();
 	});
+
+	router.get(path, function(req, res, next) {
+		console.log("get");
+		model.find()
+		.then(function(result){
+			res.api_response.results = result;
+			next();
+		});
+	}, lazy_load_mw, shorten_output, json_data);
+
+	router.get(path+'/:id', function(req, res, next) {
+		model.find_by('id',req.params.id)
+		.then(function(result){
+			res.api_response.results = result;
+			next();
+		});
+	}, lazy_load_mw, shorten_output, json_data);
 
 	router.post(path, function(req, res, next) {
 		model.create(JSON.parse(req.body[schema.name]))
@@ -45,37 +88,7 @@ module.exports = function(path, model, parent) {
 		});
 	});
 
-
-	if(schema && schema.joins) {
-		var joins = schema.joins;
-		for (var join_name in schema.joins) {
-			if(joins.hasOwnProperty(join_name) && joins[join_name].model) {
-				var join = schema.joins[join_name];
-				console.log("model.joins["+join_name+"]");
-				//router.get(path+'/:id', require('./rest_router')(path+'/:id/'+join.model.plural, join.model));
-					router.get(path+'/:id/'+join_name, function(req, res, next) {
-					model.find_by('id',req.params.id)
-					.then(function(results) {
-						promise.mapSeries(results, function(val) {
-							return val.get(join_name);
-						})
-						.then(function(results) {
-							res.json(response(results, null, join_name));
-						})
-					})
-				});
-			}
-		}
-	}
-
-	router.get(path+'/:id', function(req, res, next) {
-		model.find_by('id',req.params.id)
-		.then(function(results) {
-			res.json(response(results));
-		})
-	});
-
-    router.put(path+'/:id', function(req, res, next) {
+	router.put(path+'/:id', function(req, res, next) {
 		var id = req.params.id
 		model.find_by('id', id)
 		.then(function(results) {
