@@ -4,7 +4,13 @@ var expect = require('chai').expect
 function test_route(base_url, expected) {
 	describe(base_url, function() {
 		for(url in expected) {
-	    	it(url + " returns status 200 and matches expected value", function(done) {
+            var code = 200;
+            var value = expected[url];
+            if(Array.isArray(value)) {
+                code = value[0];
+                value = value[1];
+            }
+	    	it(url + " returns status "+code+" and matches expected value", function(done) {
 	        	request(base_url+url, function(error, response, body) {
 		            expect(response.statusCode).to.equal(200);
 	    	        expect(body).to.equal(expected[url]);
@@ -27,6 +33,7 @@ describe("Api v1 tests", function() {
 
     test_route('http://localhost:3000/v1/variants',
     	{	'/': '{"variants":[{"id":1,"name":"velikost"},{"id":2,"name":"barva"}]}',
+            '?load=option':[400, '{"name":"ModelUnknownProperty","message":"Unknown property option of variant"}'],
     });
 
     test_route('http://localhost:3000/v1/options',

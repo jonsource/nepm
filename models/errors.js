@@ -1,11 +1,24 @@
+var util = require('util')
+
 function ModelIntegrityError(message) {
+    Error.captureStackTrace(this, this.constructor);
+    this.name = this.constructor.name;
     this.message = message;
-    this.name = "ModelIntegrityError";
-    Error.captureStackTrace(this, ModelIntegrityError);
+    
+    
 }
-ModelIntegrityError.prototype = Object.create(Error.prototype);
-ModelIntegrityError.prototype.constructor = ModelIntegrityError;
+util.inherits(ModelIntegrityError, Error);
+
+function ModelUnknownProperty(message) {
+    Error.captureStackTrace(this, this.constructor);
+    this.name = this.constructor.name;
+    this.message = message;
+    
+    
+}
+util.inherits(ModelIntegrityError, Error);
 
 module.exports = {
-	ModelIntegrityError: ModelIntegrityError
+	ModelIntegrityError: ModelIntegrityError,
+	ModelUnknownProperty: ModelUnknownProperty
 }

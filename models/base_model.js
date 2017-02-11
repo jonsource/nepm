@@ -1,5 +1,5 @@
 var Promise = require('bluebird');
-var IntegrityError = require('./errors').IntegrityError;
+var ModelUnknownProperty = require('./errors').ModelUnknownProperty;
 var db_pool = require('../app/db_pool');
 
 BaseModel = function(data, db_schema) {
@@ -31,9 +31,11 @@ BaseModel.prototype.get = function(property) {
 	    }
 
 		var that = this;
-		var join = that.schema.joins[property];
 		var wheres = [], from, result;
-		console.log(join);
+		var join = that.schema.joins[property];
+		if(!join) {
+			throw new ModelUnknownProperty('Unknown property '+property+' of model '+this.schema.name);
+		}
 		
 		if(join.multi) {
 			if(join.from) {

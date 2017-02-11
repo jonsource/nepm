@@ -27,7 +27,7 @@ module.exports = function(path, model, parent) {
 					return promise.map(object.data[property], function(loaded_property) {
 						return lazy_load_chain(chain, loaded_property);
 					});
-				});
+				})
 			}
 			else {
 				return object.get(property)
@@ -48,6 +48,11 @@ module.exports = function(path, model, parent) {
 		})
 		.then(function() {
 			next();
+		})
+		.catch(function(err) {
+			console.log('err ', err);
+			res.status(404);
+			res.json({name: err.name, message:err.message});
 		});
 	}
 
