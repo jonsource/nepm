@@ -14,3 +14,34 @@ describe("App server tests", function() {
 	    });
 	});
 });
+
+describe("Simple authentication tests", function() {
+	var base_url = "http://localhost:3000/";
+	it("profile inaccessible", function(done) {
+		request({uri:base_url + 'profile',followRedirect:false},
+			function(error, response, body) {
+	    	expect(response.statusCode).to.equal(302);
+	    	expect(response.headers.location).to.equal('/');
+	        done();
+	    });
+	});
+
+	var session = '';
+	it("create user", function(done) {
+		request({method:'post', uri:base_url + 'signup',followRedirect:false, form:{username:'krtek2', password:'evilkrtek'}},
+			function(error, response, body) {
+	    	expect(response.statusCode).to.equal(302);
+	    	expect(response.headers.location).to.equal('/profile');
+	    	session = response.headers['set-cookie'][0].split(';')[0].split('=')[1];
+	    	done();
+	    });
+	});
+
+	it("profile accessible", function(done) {
+		request({uri:base_url + 'profile',followRedirect:false, headers:{cookie:'connect.sid='+session}},
+			function(error, response, body) {
+	    	expect(response.statusCode).to.equal(200);
+	    	done();
+	    });
+	});
+});
