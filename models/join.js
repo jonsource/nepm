@@ -11,7 +11,7 @@ Join = function(opts) {
 		if(!this.target) {
 			throw new Error('Target of join not defined');
 		}
-		this.intermediate = opts.intermediate || this.source+'_has_'+this.target;
+		this.intermediate = opts.intermediate || '`'+this.source+'_has_'+this.target+'`';
 	}
 	else {
 		if((!opts.target && !opts.source) || (opts.target && opts.source)) {
