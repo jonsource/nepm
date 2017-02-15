@@ -187,6 +187,7 @@ BaseModel.prototype.find = function() {
     	.then( function (data) {
         	var ret = [];
         	for(var i=0; i<data.length; i++) {
+        		delete data[i]['password'];
         		ret.push(new schema.model(data[i]));
         	}
         	return ret;

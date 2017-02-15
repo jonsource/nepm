@@ -11,12 +11,18 @@ var app      = express();
 var port     = process.env.PORT || 3000;
 var passport = require('passport');
 var flash    = require('connect-flash');
+var createModel = require('./models/model_factory').createModel;
 var Product = require('./models/product');
 var Variant = require('./models/variant');
 var Option = require('./models/option');
 var Customer = require('./models/customer');
 var Order = require('./models/order');
 var OrderItem = require('./models/order_item');
+var Client = new createModel( 
+			{	table: "client", 
+				name: "client",
+				plural: "clients",
+			});
 app.db_pool = require('./app/db_pool');
 app.models = {
 	product: new Product(),
@@ -25,6 +31,7 @@ app.models = {
 	customer: new Customer(),
 	order: new Order(),
 	order_item: new OrderItem(),
+	client: new Client(),
 }
 console.log('app models', app.models);
 // configuration ===============================================================
