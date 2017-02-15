@@ -5,10 +5,10 @@ var db_pool = mysql.createPool(dbconfig.connection);
 db_pool.getConnection()
 .then(function(connection) {
 	// ugly hack to see all MySQL queries
-	connection.constructor.prototype.old_query = connection.constructor.prototype.query;
+	connection.constructor.prototype.originalQuery = connection.constructor.prototype.query;
 	connection.constructor.prototype.query = function(str) {
 		console.log('query', str);
-		return connection.constructor.prototype.old_query.call(this, str);
+		return connection.constructor.prototype.originalQuery.call(this, str);
 	}
 	
 	connection.query( 'SELECT * FROM `' + dbconfig.users_table + '` LIMIT 1')
