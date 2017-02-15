@@ -11,7 +11,24 @@ BaseModel = function(data, db_schema) {
 	}
 }
 
-BaseModel.prototype.get = function(property) {
+BaseModel.prototype.get = function(propertyChain) {
+	var parts = chain.split('.');
+	var property = parts.shift();
+	propertyChain = parts.join('.');
+	if(propertyChain) {
+		return this.get(property)
+		.then(function() {
+			return promise.map(this.data[property], function(loadedProperty) {
+				return loadedProperty.get(propretyChain);
+			});
+		})
+	}
+	else {
+		return object.get(property)
+	}
+}
+
+BaseModel.prototype._get = function(property) {
 	if(typeof this.data[property] !== 'undefined') {
 		return Promise.resolve(this.data[property]);
 	}
