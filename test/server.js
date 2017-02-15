@@ -17,6 +17,17 @@ describe("App server tests", function() {
 
 describe("Simple authentication tests", function() {
 	var base_url = "http://localhost:3000/";
+	var session = '';
+
+	/*after(function(done) {
+		console.log('deleting user krtek2');
+		request({uri:base_url + 'profile',followRedirect:false, headers:{cookie:'connect.sid='+session}},
+			function(error, response, body) {
+	    	expect(response.statusCode).to.equal(200);
+	    	done();
+	    });
+	});*/
+
 	it("profile inaccessible", function(done) {
 		request({uri:base_url + 'profile',followRedirect:false},
 			function(error, response, body) {
@@ -26,8 +37,7 @@ describe("Simple authentication tests", function() {
 	    });
 	});
 
-	var session = '';
-	it("create user", function(done) {
+	("create user", function(done) {
 		request({method:'post', uri:base_url + 'signup',followRedirect:false, form:{username:'krtek2', password:'evilkrtek'}},
 			function(error, response, body) {
 	    	expect(response.statusCode).to.equal(302);
