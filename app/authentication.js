@@ -12,7 +12,7 @@ module.exports = {
 
 	isLoggedInJson: function(req, res, next) {
 		// if user is authenticated in the session, carry on
-		if (req.isAuthenticated() || req.params.noAuth || req.body.noAuth)
+		if (req.isAuthenticated())
 			return next();
 		
 		res.json({error:'not authenticated'});

@@ -13,6 +13,7 @@ exports.up = function(next){
 					`id` INTEGER NULL AUTO_INCREMENT DEFAULT NULL,\
 					`name` VARCHAR(64) NOT NULL,\
 					`parent_tag_id` INTEGER NULL DEFAULT NULL,\
+					`deleted` BOOLEAN NOT NULL DEFAULT 0, \
 					PRIMARY KEY (`id`)\
 			)', callback);
 		},
@@ -21,6 +22,7 @@ exports.up = function(next){
 				CREATE TABLE `product_has_tag` (\
 						`product_id` INTEGER NULL DEFAULT NULL,\
 						`tag_id` INTEGER NULL DEFAULT NULL,\
+						`deleted` BOOLEAN NOT NULL DEFAULT 0, \
 						PRIMARY KEY (`product_id`, `tag_id`)\
 			)', callback);
 		},

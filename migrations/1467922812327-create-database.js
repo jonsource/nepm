@@ -25,7 +25,8 @@ exports.up = function(next){
 			    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT, \
 			    `username` VARCHAR(20) NOT NULL, \
 			    `password` CHAR(60) NOT NULL, \
-			        PRIMARY KEY (`id`), \
+			    `deleted` BOOLEAN NOT NULL DEFAULT 0, \
+			    PRIMARY KEY (`id`), \
 			    UNIQUE INDEX `id_UNIQUE` (`id` ASC), \
 			    UNIQUE INDEX `username_UNIQUE` (`username` ASC) \
 			)', callback);
@@ -36,6 +37,7 @@ exports.up = function(next){
 					`id` INTEGER NULL AUTO_INCREMENT DEFAULT NULL, \
 					`name` VARCHAR(64) NOT NULL, \
 					`email` VARCHAR(64) NOT NULL, \
+					`deleted` BOOLEAN NOT NULL DEFAULT 0, \
 					PRIMARY KEY (`id`) \
 			)', callback);
 		},
@@ -44,6 +46,7 @@ exports.up = function(next){
 				CREATE TABLE `order` ( \
 					`id` INTEGER NULL AUTO_INCREMENT DEFAULT NULL, \
 					`customer_id` INTEGER NULL DEFAULT NULL, \
+					`deleted` BOOLEAN NOT NULL DEFAULT 0, \
 					PRIMARY KEY (`id`) \
 				)', callback);
 		},
@@ -56,6 +59,7 @@ exports.up = function(next){
 				`order_item_option_id` INTEGER NULL DEFAULT NULL, \
 				`quantity` INTEGER NOT NULL, \
 				`unit_price` DECIMAL(6.2) NOT NULL, \
+				`deleted` BOOLEAN NOT NULL DEFAULT 0, \
 				PRIMARY KEY (`id`) \
 			)', callback);
 		},
@@ -67,6 +71,7 @@ exports.up = function(next){
 				`price` DECIMAL(6.2) NULL DEFAULT NULL, \
 				`name` VARCHAR(64) NULL DEFAULT NULL, \
 				`descirption` MEDIUMTEXT NULL DEFAULT NULL, \
+				`deleted` BOOLEAN NOT NULL DEFAULT 0, \
 				PRIMARY KEY (`id`) \
 			)', callback);
 		},
@@ -75,6 +80,7 @@ exports.up = function(next){
 			CREATE TABLE `variant` ( \
 				`id` INTEGER NULL AUTO_INCREMENT DEFAULT NULL, \
 				`name` VARCHAR(32) NOT NULL, \
+				`deleted` BOOLEAN NOT NULL DEFAULT 0, \
 				PRIMARY KEY (`id`) \
 			)', callback);
 		},
@@ -84,6 +90,7 @@ exports.up = function(next){
 		  		`id` INTEGER NULL AUTO_INCREMENT DEFAULT NULL, \
 				`variant_id` INTEGER NULL DEFAULT NULL, \
 				`name` VARCHAR(32) NOT NULL, \
+				`deleted` BOOLEAN NOT NULL DEFAULT 0, \
 				PRIMARY KEY (`id`) \
 			)', callback);
 		},
@@ -92,6 +99,7 @@ exports.up = function(next){
 			CREATE TABLE `product_has_variant` ( \
 				`product_id` INTEGER NULL DEFAULT NULL, \
 				`variant_id` INTEGER NULL DEFAULT NULL, \
+				`deleted` BOOLEAN NOT NULL DEFAULT 0, \
 				PRIMARY KEY (`product_id`, `variant_id`) \
 			)', callback);
 		},
@@ -102,6 +110,7 @@ exports.up = function(next){
 				`product_id` INTEGER NULL DEFAULT NULL, \
 				`option_id` INTEGER NULL DEFAULT NULL, \
 				`price` DECIMAL(6.2) NULL DEFAULT NULL, \
+				`deleted` BOOLEAN NOT NULL DEFAULT 0, \
 				PRIMARY KEY (`id`) \
 			)', callback);
 		},
@@ -112,6 +121,7 @@ exports.up = function(next){
 				`variant_name` VARCHAR(32) NOT NULL, \
 				`option_name` VARCHAR(32) NOT NULL, \
 				`price` DECIMAL(6.2) NULL DEFAULT NULL, \
+				`deleted` BOOLEAN NOT NULL DEFAULT 0, \
 				PRIMARY KEY (`id`) \
 			)', callback);
 		},

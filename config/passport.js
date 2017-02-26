@@ -23,7 +23,7 @@ module.exports = function(passport, db_pool) {
 
     // used to deserialize the user
     passport.deserializeUser(function(id, done) {
-        db_pool.query("SELECT * FROM " + dbconfig.users_table + " WHERE id = ? ",[id], function(err, rows){
+        db_pool.query("SELECT * FROM " + dbconfig.users_table + " WHERE id = ? AND deleted = 0",[id], function(err, rows){
             done(err, rows[0]);
         });
     });

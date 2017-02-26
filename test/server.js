@@ -37,7 +37,7 @@ describe("Simple authentication tests", function() {
 	    });
 	});
 
-	("create user", function(done) {
+	it("create user", function(done) {
 		request({method:'post', uri:base_url + 'signup',followRedirect:false, form:{username:'krtek2', password:'evilkrtek'}},
 			function(error, response, body) {
 	    	expect(response.statusCode).to.equal(302);
@@ -54,4 +54,5 @@ describe("Simple authentication tests", function() {
 	    	done();
 	    });
 	});
+
 });
