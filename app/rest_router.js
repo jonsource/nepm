@@ -15,14 +15,13 @@ module.exports = function(path, model, parent) {
 	}
 
 	function lazy_load_mw(req, res, next) {
-		console.log("lazy_load_mw");
-
 		var lazy_load = [];
 		if(req.query.load) {
 			lazy_load = req.query.load.split(',');
 		} else {
 			next();
 		}
+		console.log("lazy_load_mw", lazy_load);
 		
 		promise.map(res.api_response.results, function(object) {
 			return promise.map(lazy_load, function(chain) {
@@ -36,6 +35,7 @@ module.exports = function(path, model, parent) {
 			console.log('err ', err);
 			res.status(404);
 			res.json({name: err.name, message:err.message});
+			throw err;
 		});
 	}
 

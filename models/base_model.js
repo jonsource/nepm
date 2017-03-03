@@ -12,19 +12,20 @@ BaseModel = function(data, db_schema) {
 }
 
 BaseModel.prototype.get = function(propertyChain) {
-	var parts = chain.split('.');
+	var parts = propertyChain.split('.');
 	var property = parts.shift();
+	var model = this;
 	propertyChain = parts.join('.');
 	if(propertyChain) {
-		return this.get(property)
-		.then(function() {
-			return promise.map(this.data[property], function(loadedProperty) {
-				return loadedProperty.get(propretyChain);
+		return model._get(property)
+		.then(function(prop) {
+			return Promise.map(model.data[property], function(loadedProperty) {
+				return loadedProperty.get(propertyChain);
 			});
 		})
 	}
 	else {
-		return object.get(property)
+		return model._get(property)
 	}
 }
 
