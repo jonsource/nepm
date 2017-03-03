@@ -1,4 +1,5 @@
 var express = require('express');
+var authentication = require('./authentication');
 var promise = require('bluebird');
 
 module.exports = function(path, model, parent) {
@@ -67,6 +68,14 @@ module.exports = function(path, model, parent) {
 		res.api_response.results = {};
 		res.api_response.name = schema.plural;
 		next();
+	});
+
+	router.get(path, function(req, res, next) {
+		if(model.schema.protected) {
+			authentication.isLoggedInJson(req, res, next);
+		} else {
+			next();
+		}
 	});
 
 	router.get(path, function(req, res, next) {

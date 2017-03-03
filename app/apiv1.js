@@ -1,5 +1,6 @@
 var express = require('express');
 var authentication = require('./authentication');
+var restRouter = require('./rest_router');
 
 module.exports = function(models) {
 	
@@ -14,16 +15,19 @@ module.exports = function(models) {
 		}
 	});
 
-	router.get('/users', function(req, res, next) {
-		res.json({users: true});
+	router.post('/create_order', function(req, res, next) {
+		res.json({order: 'created'});
 	});
 
 	for(model in models) {
 		if(models.hasOwnProperty(model)) {
-			router.use('/', require('./rest_router')('/'+models[model].schema.plural, models[model]));
+			router.use('/', restRouter('/'+models[model].schema.plural, models[model]));
 		}
 	}
+
 	
+	/* Uploading files */
+
 	var multer = require('multer');
 	var storage = multer.diskStorage({
   			destination: function (req, file, callback) {

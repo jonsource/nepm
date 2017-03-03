@@ -92,4 +92,5 @@ module.exports = function(app, passport) {
 	});
 
 	app.use('/v1', require('./apiv1')(app.models));
+
 };

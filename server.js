@@ -22,6 +22,7 @@ var Client = new createModel(
 			{	table: "client", 
 				name: "client",
 				plural: "clients",
+				protected: true
 			});
 app.db_pool = require('./app/db_pool');
 app.models = {

@@ -1,6 +1,7 @@
 var Promise = require('bluebird');
 var request = require('request');
 var expect = require('chai').expect;
+var deleteUser = require('./helper').deleteUser
 
 describe("App server tests", function() {
 
@@ -18,15 +19,6 @@ describe("App server tests", function() {
 describe("Simple authentication tests", function() {
 	var base_url = "http://localhost:3000/";
 	var session = '';
-
-	/*after(function(done) {
-		console.log('deleting user krtek2');
-		request({uri:base_url + 'profile',followRedirect:false, headers:{cookie:'connect.sid='+session}},
-			function(error, response, body) {
-	    	expect(response.statusCode).to.equal(200);
-	    	done();
-	    });
-	});*/
 
 	it("profile inaccessible", function(done) {
 		request({uri:base_url + 'profile',followRedirect:false},
@@ -53,6 +45,11 @@ describe("Simple authentication tests", function() {
 	    	expect(response.statusCode).to.equal(200);
 	    	done();
 	    });
+	});
+
+	it("delete user", function(done) {
+		deleteUser('krtek2')
+		.then(done)
 	});
 
 });
