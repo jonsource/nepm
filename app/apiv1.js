@@ -1,3 +1,4 @@
+var Promise = require('bluebird');
 var express = require('express');
 var authentication = require('./authentication');
 var restRouter = require('./rest_router');
@@ -16,7 +17,26 @@ module.exports = function(models) {
 	});
 
 	router.post('/create_order', function(req, res, next) {
-		res.json({order: 'created'});
+		console.log('create', req.body.order);
+		var i=0;
+		var products=[];
+		Promise.map(req.body.order, function() {
+			var itemData = req.body.order[i];
+			console.log('item_data', itemData);
+			return models.product.findOneBy('id', itemData.product_id)
+			.then(function(product) {
+				
+				/*return product.get('variants.options')
+				.then(function() {
+					return product;	
+				})*/
+				return product;
+			});
+		})
+		.then(function(result) {
+			console.log('product', result);
+			res.json({order: 'created', items: result});
+		});
 	});
 
 	for(model in models) {

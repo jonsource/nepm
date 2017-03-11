@@ -17,7 +17,8 @@ describe("Order tests", function() {
     });
 
     it("returns something", function(done) {
-        request({method:'post', uri: base_url + '/v1/create_order', headers:{cookie:'connect.sid='+session}}, function(error, response, body) {
+        var data = {order:[{product_id: 1, variants: {1: 2, 2: 5}}, {product_id: 1, variants: {1: 2, 2: 4}}]};
+        request({method:'post', uri: base_url + '/v1/create_order', headers:{cookie:'connect.sid='+session}, body: data, json: true}, function(error, response, body) {
             console.log(body);
             done();
         });

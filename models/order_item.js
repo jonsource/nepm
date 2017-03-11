@@ -18,11 +18,9 @@ function OrderItem (data) {
 inherits(OrderItem, BaseModel);
 
 OrderItem.prototype.create = function(data) {
-	
-	/*ret = new this.schema.model(data);
+	var ret = new this.schema.model(data);
 	ret.schema = this.schema;
-	return ret.save();*/
-	return data;
+	return ret;
 }
 
 module.exports = OrderItem
