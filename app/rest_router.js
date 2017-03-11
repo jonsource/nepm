@@ -7,25 +7,23 @@ module.exports = function(path, model, parent) {
 	var router = express.Router({mergeParams: true});
 	var schema = model.schema;
 
-	function json_data(req, res, next) {
-		//console.log("json_data");
+	function jsonData(req, res, next) {
+		//console.log("jsonData");
 		var ret={};
 		ret[res.api_response.name] = res.api_response.results;
 		res.json(ret);
 	}
 
-	function lazy_load_mw(req, res, next) {
+	function lazyLoad(req, res, next) {
 		var lazy_load = [];
 		if(req.query.load) {
 			lazy_load = req.query.load.split(',');
 		} else {
 			next();
 		}
-		console.log("lazy_load_mw", lazy_load);
-		
 		promise.map(res.api_response.results, function(object) {
 			return promise.map(lazy_load, function(chain) {
-				return object.get(chain);
+				return object.getByChain(chain);
 			})
 		})
 		.then(function() {
@@ -39,7 +37,7 @@ module.exports = function(path, model, parent) {
 		});
 	}
 
-	function shift_data_up(object) {
+	function shiftDataUp(object) {
 		var short_object = object;
 		if(object.data && object.schema) {
 			object = object.data;
@@ -48,16 +46,16 @@ module.exports = function(path, model, parent) {
 		for (var child in object) {
 			if(object.hasOwnProperty(child) && object[child] && typeof object[child] === 'object') {
 				//console.log('shifting '+child);
-				short_object[child] = shift_data_up(object[child]);
+				short_object[child] = shiftDataUp(object[child]);
 			}
 		}
 		return short_object;
 	}
 
-	function shorten_output(req, res, next) {
+	function shortenOutput(req, res, next) {
 		//console.log("shorten_output");
 		if(!req.query.hasOwnProperty('v')) {
-			res.api_response.results = shift_data_up(res.api_response.results);
+			res.api_response.results = shiftDataUp(res.api_response.results);
 		}
 		next();
 	}
@@ -85,15 +83,15 @@ module.exports = function(path, model, parent) {
 			res.api_response.results = result;
 			next();
 		});
-	}, lazy_load_mw, shorten_output, json_data);
+	}, lazyLoad, shortenOutput, jsonData);
 
 	router.get(path+'/:id', function(req, res, next) {
-		model.find_by('id',req.params.id)
+		model.findBy('id',req.params.id)
 		.then(function(result){
 			res.api_response.results = result;
 			next();
 		});
-	}, lazy_load_mw, shorten_output, json_data);
+	}, lazyLoad, shortenOutput, jsonData);
 
 	router.post(path, function(req, res, next) {
 		model.create(JSON.parse(req.body[schema.name]))
@@ -130,7 +128,7 @@ module.exports = function(path, model, parent) {
 			return results[0].delete();
 		})
 		.then(function() {
-			return model.find_by('id', id);
+			return model.findBy('id', id);
 		})
 		.then(function(results) {
 			if(!results)

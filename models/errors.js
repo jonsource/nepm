@@ -16,7 +16,7 @@ function ModelUnknownProperty(message) {
     
     
 }
-util.inherits(ModelIntegrityError, Error);
+util.inherits(ModelUnknownProperty, Error);
 
 module.exports = {
 	ModelIntegrityError: ModelIntegrityError,
