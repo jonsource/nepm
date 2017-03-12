@@ -1,7 +1,10 @@
+var Promise = require('bluebird');
 var BaseModel = require('./base_model');
 var Join = require('./join');
 var inherits = require('util').inherits;
 var Order = require('./order');
+var Product = require('./product');
+var product = new Product();
 
 function OrderItem (data) {
 	OrderItem.super_.call(this, data, 
@@ -18,9 +21,25 @@ function OrderItem (data) {
 inherits(OrderItem, BaseModel);
 
 OrderItem.prototype.create = function(data) {
-	var ret = new this.schema.model(data);
+
+	function getProductInstance(data) {
+		return product.findOneBy('id', data.product_id)
+		.then(function(instance) {
+			return instance.getByDescription(data.description)
+			.then(function() {
+				return instance;
+			});
+		});
+	}
+	
+	var ret = new this.schema.model();
 	ret.schema = this.schema;
-	return ret;
+	
+	return getProductInstance(data)
+	.then(function(prod) {
+		console.log('data for item:', prod);
+		return ret;
+	});
 }
 
 module.exports = OrderItem

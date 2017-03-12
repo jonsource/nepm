@@ -17,24 +17,8 @@ module.exports = function(models) {
 	});
 
 	router.post('/create_order', function(req, res, next) {
-		console.log('create', req.body.order);
-		var i=0;
-		var products=[];
-		Promise.map(req.body.order, function() {
-			var itemData = req.body.order[i];
-			console.log('item_data', itemData);
-			return models.product.findOneBy('id', itemData.product_id)
-			.then(function(product) {
-				
-				/*return product.get('variants.options')
-				.then(function() {
-					return product;	
-				})*/
-				return product;
-			});
-		})
+		models.order.create(req.body.order)
 		.then(function(result) {
-			console.log('product', result);
 			res.json({order: 'created', items: result});
 		});
 	});

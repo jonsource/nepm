@@ -46,7 +46,7 @@ describe("Product test", function() {
     	p.findOneBy('id', 1)
     	.then(function(i) {
 			instance = i;
-			return i.getByChain('variants:1.options:1,tags:1');
+			return i.getByChain('variants:1.options:1,tags');
 		})
 		.then(function(result) {
 			console.log(instance);

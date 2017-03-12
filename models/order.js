@@ -1,7 +1,9 @@
+var Promise = require('bluebird');
 var BaseModel = require('./base_model');
 var Join = require('./join');
 var inherits = require('util').inherits;
 var OrderItem = require('./order_item');
+var orderItem = new OrderItem();
 var Customer = require('./customer');
 
 function Order (data) {
@@ -19,12 +21,16 @@ function Order (data) {
 
 inherits(Order, BaseModel);
 
-Order.prototype.create = function(data) {
+Order.prototype.create = function(orderData) {
 	
-	/*ret = new this.schema.model(data);
+	var ret = new this.schema.model();
 	ret.schema = this.schema;
-	return ret.save();*/
-	return data;
+
+	return Promise.map(orderData, orderItem.create.bind(orderItem))
+	.then(function(items) {
+		console.log('items:', items);
+		return ret;
+	});
 }
 
 module.exports = Order
