@@ -16,15 +16,11 @@ module.exports = function(path, model, parent) {
 
 	function lazyLoad(req, res, next) {
 		var lazy_load = [];
-		if(req.query.load) {
-			lazy_load = req.query.load.split(',');
-		} else {
+		if(!req.query.load) {
 			next();
 		}
 		promise.map(res.api_response.results, function(object) {
-			return promise.map(lazy_load, function(chain) {
-				return object.getByChain(chain);
-			})
+			return object.getByChain(req.query.load);
 		})
 		.then(function() {
 			next();

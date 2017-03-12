@@ -16,6 +16,11 @@ BaseModel = function(data, db_schema) {
  * @param {string} - propertyChain of format "property:id.subproperty:id,otherProperty:id"
  */
 BaseModel.prototype.getByChain = function(propertyChain) {
+	var parts = propertyChain.split(',');
+	return Promise.map(parts, this._getOnePropertyByChain.bind(this));
+}
+
+BaseModel.prototype._getOnePropertyByChain = function(propertyChain) {
 	var parts = propertyChain.split('.');
 	var property = parts.shift();
 	var model = this;
@@ -40,6 +45,29 @@ BaseModel.prototype.getByChain = function(propertyChain) {
 }
 
 /**
+ * recoursively gets or lazyloads properties of a model and properties of these properties etc..
+ * @param {description[]} array - array of descriptions of format "{property: name, id: value, children: description[] }, children property is optional"
+ */
+BaseModel.prototype.getByDescription = function(array) {
+	return Promise.map(array, this._getOnePropertyByDescription.bind(this));
+}
+
+BaseModel.prototype._getOnePropertyByDescription = function(description) {
+	var model = this;
+	if(description.children && description.children.length) {
+		return model.get(description.property, description.id)
+		.then(function(prop) {
+			return Promise.map(prop, function(loadedProperty) {
+				return loadedProperty.getByDescription(description.children);
+			});
+		});
+	}
+	else {
+		return model.get(description.property, description.id)
+	}
+}
+
+/**
  * gets or lazyloads property of model
  * @param {string} property - name of porerty
  * @param {number} id - id of property to load, otherwise all properties are loaded
@@ -52,7 +80,7 @@ BaseModel.prototype.get = function(property, id) {
 		
 		function assignResults(results, that, property, required) {
             var join = that.schema.joins[property];
-            console.log('assign results', results);
+            //console.log('assign results', results);
             if(required && !results.length) {
             	throw new ModelIntegrityError(that.schema.name+'.'+property+':'+id+' not found!');
             }
