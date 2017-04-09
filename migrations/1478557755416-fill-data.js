@@ -1,29 +1,22 @@
-var mysql = require('mysql');
-var dbconfig = require('../config/database');
-dbconfig.connection.multipleStatements = true;
-var connection = mysql.createConnection(dbconfig.connection);
-var async = require('async');
+dbconfig = require('../config/database')
+connection = require('./connection')
+query = connection.query;
 
 exports.up = function(next){
   	
-  	async.series([
-  		function(callback) {
-			connection.query(' \
+  	connection.getConnect()
+  		.then(query(' \
 				INSERT INTO `product` (`id`,`price`, `name`, `descirption`) VALUES\
 					(1, 10.0, "t-shirt", "Obyčejné triko"),\
 					(2, 25.0, "trousers", "Obyčejné kalhoty"),\
 					(3, 15.0, "shirt", "Obyčejná košile");\
-			', callback);
-		},
-		function(callback) { 
-			connection.query(' \
+			'))
+		.then(query(' \
 				INSERT INTO `variant` (`id`, `name`) VALUES\
 					(1, "velikost"),\
 					(2, "barva");\
-			', callback);
-		},
-		function(callback) { 
-			connection.query('\
+			'))
+		.then(query('\
 				INSERT INTO `option` (`id`, `variant_id`, `name`) VALUES\
 					(1, 1, "s"),\
 					(2, 1, "m"),\
@@ -32,20 +25,16 @@ exports.up = function(next){
 					(5, 2, "červená"),\
 					(6, 2, "modrá"),\
 					(7, 2, "bílá");\
-		', callback);
-		},
-		function(callback) { 
-			connection.query(' \
+		'))
+		.then(query(' \
 				INSERT INTO `product_has_variant` (`product_id`, `variant_id`) VALUES\
 					(1, 1),\
 					(1, 2),\
 					(2, 1),\
 					(2, 2),\
 					(3, 1);\
-			', callback);
-		},
-		function(callback) { 
-			connection.query(' \
+			'))
+		.then(query(' \
 				INSERT INTO `product_has_option` (`id`, `product_id`, `option_id`, `price`) VALUES\
 					(1, 1, 1, 0.0),\
 					(2, 1, 2, 0.0),\
@@ -65,37 +54,29 @@ exports.up = function(next){
 					(16, 3, 2, 0.5),\
 					(17, 3, 3, 1.0),\
 					(18, 3, 4, 2.5);\
-			', callback);
-		},
-		function create_customers(callback) {
-			connection.query(' \
+			'))
+		.then(query(' \
 			INSERT INTO `customer` (`id`, `name`, `email`) VALUES\
 				(1, "pepik", "pepik@seznam.cz"),\
 				(2, "lojzik", "lojzik@seznam.cz"),\
 				(3, "amalka", "amalka@seznam.cz");\
-			', callback);
-		},
-		function create_orders(callback) {
-			connection.query(' \
+			'))
+		.then(query(' \
 			INSERT INTO `order` (`id`, `customer_id`) VALUES\
 				(1, 1),\
 				(2, 3),\
 				(3, 3);\
-			', callback);
-		}],
-		function(err, results) { 
-  			if(err) { throw err; }
-  			console.log("Success: Data filled");
-  			next();
-  		}
-  	);
+			'))
+		.then(function() {next();})
+		.catch(function (err) {
+			throw(err)
+		})
 };
 
 exports.down = function(next){
 	
-	async.series([
-  		function(callback) { 
-			connection.query('\
+	connection.getConnect()
+  		.then(query('\
 				SET foreign_key_checks = 0;\
 				TRUNCATE TABLE product_has_option;\
 				TRUNCATE TABLE product_has_variant;\
@@ -105,12 +86,6 @@ exports.down = function(next){
 				TRUNCATE TABLE `customer`;\
 				TRUNCATE TABLE `order`;\
 				SET foreign_key_checks = 1;\
-			', callback);
-		}],
-  		function(err, results) { 
-  			if(err) { throw err; }
-  			console.log("Success: Data removed");
-  			next();
-  		}
-  	);
+			'))
+		.then(next);
 };

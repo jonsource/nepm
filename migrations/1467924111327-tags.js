@@ -1,62 +1,44 @@
-var mysql = require('mysql');
-var dbconfig = require('../config/database');
-dbconfig.connection.multipleStatements = true;
-var connection = mysql.createConnection(dbconfig.connection);
-var async = require('async');
+dbconfig = require('../config/database')
+connection = require('./connection')
+query = connection.query;
 
 exports.up = function(next){
   	
-  	async.series([
-  		function(callback) {
-			connection.query('\
+  	connection.getConnect()
+  		.then(query('\
 				CREATE TABLE `tag` (\
 					`id` INTEGER NULL AUTO_INCREMENT DEFAULT NULL,\
 					`name` VARCHAR(64) NOT NULL,\
 					`parent_tag_id` INTEGER NULL DEFAULT NULL,\
 					`deleted` BOOLEAN NOT NULL DEFAULT 0, \
 					PRIMARY KEY (`id`)\
-			)', callback);
-		},
-		function(callback) { 
-			connection.query('\
+			)'))
+		.then(query('\
 				CREATE TABLE `product_has_tag` (\
 						`product_id` INTEGER NULL DEFAULT NULL,\
 						`tag_id` INTEGER NULL DEFAULT NULL,\
 						`deleted` BOOLEAN NOT NULL DEFAULT 0, \
 						PRIMARY KEY (`product_id`, `tag_id`)\
-			)', callback);
-		},
-		function(callback) { 
-			connection.query('\
+			)'))
+		.then(query('\
 				ALTER TABLE `product_has_tag` ADD FOREIGN KEY (product_id) REFERENCES `product` (`id`);\
 				ALTER TABLE `product_has_tag` ADD FOREIGN KEY (tag_id) REFERENCES `tag` (`id`);\
-			', callback);
-		}],
-		function(err, results) { 
-  			if(err) { throw err; }
-  			console.log("Success: Tags added");
-  			next();
-  		}
-  	);
+			'))
+		.then(function() {next();})
+		.catch(function (err) {
+			throw(err)
+		})
 };
 
 exports.down = function(next){
 	
-	async.series([
-  		function(callback) { 
-			connection.query('\
+	connection.getConnect()
+  		.then(query('\
 				ALTER TABLE `product_has_tag` DROP FOREIGN KEY `product_has_tag_ibfk_1`;\
 				ALTER TABLE `product_has_tag` DROP FOREIGN KEY `product_has_tag_ibfk_2`;\
-			', callback);
-		},
-		function(callback) { 
-			connection.query('DROP TABLE `product_has_tag`;\
-					 DROP TABLE `tag`;', callback);	
-		}],
-  		function(err, results) { 
-  			if(err) { throw err; }
-  			console.log("Success: Tags removed");
-  			next();
-  		}
-  	);
+			'))
+		.then(query('DROP TABLE `product_has_tag`;\
+					 DROP TABLE `tag`;'
+			))
+		.then(next);
 };

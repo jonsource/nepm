@@ -1,49 +1,10 @@
-var mysql = require('mysql');
-var dbconfig = require('../config/database');
-var Promise = require('bluebird');
-dbconfig.connection.multipleStatements = true;
-var db = dbconfig.connection.database;
-delete dbconfig.connection.database;
-var connection;
-var connect;
-var q;
-var query = function(str) {
-				console.log('generating', str)
-				return function() {
-					console.log('performing', str);
-					return q(str);
-				}
-			}
-
-//var async = require('async');
-
-var attempt = 0;
+dbconfig = require('../config/database')
+connection = require('./connection')
+query = connection.query;
 
 exports.up = function(next){
   	
-	function tryConnect() {
-		console.log("Trying connection ", attempt++)
-		connection = mysql.createConnection(dbconfig.connection);
-		connect = Promise.promisify(connection.connect, {context: connection});
-		return connect()
-		.catch(function(err) {
-			if(attempt<150) {
-				return Promise.delay(200).then(tryConnect); 
-			}
-			return null;
-		})
-	};
-
-	function getConnect() {
-		return tryConnect()
-		.then(function() {
-			console.log('after connect');
-			q = Promise.promisify(connection.query, {context: connection});
-			dbconfig.connection.database = db
-		})
-	}
-
-	getConnect()
+	connection.getConnect()
 		.then(function() {console.log('after get connect')})
 		//.then(query('CREATE DATABASE ' + dbconfig.connection.database + ' CHARACTER SET utf8 COLLATE utf8_general_ci;'))
 		.then(query('CREATE DATABASE test CHARACTER SET utf8 COLLATE utf8_general_ci;'))
@@ -140,17 +101,15 @@ exports.up = function(next){
 			ALTER TABLE `order` ADD FOREIGN KEY (customer_id) REFERENCES `customer` (`id`);'))
 		.then(query(' \
 			ALTER TABLE `order_item` ADD FOREIGN KEY (order_id) REFERENCES `order` (`id`);'))
-		.then(query(' \
-				ALTER TABLE `order_item` ADD FOREIGN KEY (product_id) REFERENCES `product` (`id`);\
-				ALTER TABLE `order_item` ADD FOREIGN KEY (order_item_option_id) REFERENCES `order_item_option` (`id`);\
-				ALTER TABLE `product` ADD FOREIGN KEY (parent_id) REFERENCES `product` (`id`);\
-				ALTER TABLE `option` ADD FOREIGN KEY (variant_id) REFERENCES `variant` (`id`);\
-				ALTER TABLE `product_has_variant` ADD FOREIGN KEY (product_id) REFERENCES `product` (`id`);\
-				ALTER TABLE `product_has_variant` ADD FOREIGN KEY (variant_id) REFERENCES `variant` (`id`);\
-				ALTER TABLE `product_has_option` ADD FOREIGN KEY (product_id) REFERENCES `product` (`id`);\
-				ALTER TABLE `product_has_option` ADD FOREIGN KEY (option_id) REFERENCES `option` (`id`);'
-		))
-		.then(function() { next() })
+		.then(query('ALTER TABLE `order_item` ADD FOREIGN KEY (product_id) REFERENCES `product` (`id`);'))
+		.then(query('ALTER TABLE `order_item` ADD FOREIGN KEY (order_item_option_id) REFERENCES `order_item_option` (`id`);'))
+		.then(query('ALTER TABLE `product` ADD FOREIGN KEY (parent_id) REFERENCES `product` (`id`);'))
+		.then(query('ALTER TABLE `option` ADD FOREIGN KEY (variant_id) REFERENCES `variant` (`id`);'))
+		.then(query('ALTER TABLE `product_has_variant` ADD FOREIGN KEY (product_id) REFERENCES `product` (`id`);'))
+		.then(query('ALTER TABLE `product_has_variant` ADD FOREIGN KEY (variant_id) REFERENCES `variant` (`id`);'))
+		.then(query('ALTER TABLE `product_has_option` ADD FOREIGN KEY (product_id) REFERENCES `product` (`id`);'))
+		.then(query('ALTER TABLE `product_has_option` ADD FOREIGN KEY (option_id) REFERENCES `option` (`id`);'))
+		.then(function() {next();})
 };
 
 exports.down = function(next){

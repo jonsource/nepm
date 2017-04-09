@@ -6,7 +6,7 @@ docker run --name mysqlraw -e MYSQL_ROOT_PASSWORD=1234 -d mysql/mysql-server:5.6
 #sleep 25
 mv migrations/.migrate migrations/.bkp_migrate
 node_modules/migrate/bin/migrate up
-docker exec mysqlraw mysqldump -u root -p1234 test > test.sql
+docker exec mysqlraw mysqldump -u root -p1234 -B test > test.sql
 chmod 0777 test.sql
 docker rm -f mysqlraw
 rm migrations/.migrate
