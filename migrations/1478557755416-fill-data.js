@@ -67,6 +67,10 @@ exports.up = function(next){
 				(2, 3),\
 				(3, 3);\
 			'))
+		.then(query(' \
+			INSERT INTO `client` (`id`, `username`, `password`) VALUES\
+				(1, "krtek", "$2a$10$bnJvCIWwWsVkx.ciPuCBdunYOtQ01PswDAZndDNo6w5H4/4mVlfGG");\
+			'))
 		.then(function() {next();})
 		.catch(function (err) {
 			throw(err)

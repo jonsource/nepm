@@ -41,9 +41,10 @@ exports.up = function(next){
 				`id` INTEGER NULL AUTO_INCREMENT DEFAULT NULL, \
 				`order_id` INTEGER NOT NULL, \
 				`product_id` INTEGER NULL DEFAULT NULL, \
-				`order_item_option_id` INTEGER NULL DEFAULT NULL, \
 				`quantity` INTEGER NOT NULL, \
 				`unit_price` DECIMAL(6.2) NOT NULL, \
+				`name` VARCHAR(32) NOT NULL, \
+				`descirption` MEDIUMTEXT NULL DEFAULT NULL, \
 				`deleted` BOOLEAN NOT NULL DEFAULT 0, \
 				PRIMARY KEY (`id`) \
 			)'))
@@ -91,6 +92,7 @@ exports.up = function(next){
 		.then(query(' \
 			CREATE TABLE `order_item_option` ( \
 				`id` INTEGER NULL AUTO_INCREMENT DEFAULT NULL, \
+				`order_item_id` INTEGER NOT NULL, \
 				`variant_name` VARCHAR(32) NOT NULL, \
 				`option_name` VARCHAR(32) NOT NULL, \
 				`price` DECIMAL(6.2) NULL DEFAULT NULL, \
@@ -102,7 +104,7 @@ exports.up = function(next){
 		.then(query(' \
 			ALTER TABLE `order_item` ADD FOREIGN KEY (order_id) REFERENCES `order` (`id`);'))
 		.then(query('ALTER TABLE `order_item` ADD FOREIGN KEY (product_id) REFERENCES `product` (`id`);'))
-		.then(query('ALTER TABLE `order_item` ADD FOREIGN KEY (order_item_option_id) REFERENCES `order_item_option` (`id`);'))
+		.then(query('ALTER TABLE `order_item_option` ADD FOREIGN KEY (order_item_id) REFERENCES `order_item` (`id`);'))
 		.then(query('ALTER TABLE `product` ADD FOREIGN KEY (parent_id) REFERENCES `product` (`id`);'))
 		.then(query('ALTER TABLE `option` ADD FOREIGN KEY (variant_id) REFERENCES `variant` (`id`);'))
 		.then(query('ALTER TABLE `product_has_variant` ADD FOREIGN KEY (product_id) REFERENCES `product` (`id`);'))
