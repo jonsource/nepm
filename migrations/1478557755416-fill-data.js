@@ -6,7 +6,7 @@ exports.up = function(next){
   	
   	connection.getConnect()
   		.then(query(' \
-				INSERT INTO `product` (`id`,`price`, `name`, `descirption`) VALUES\
+				INSERT INTO `product` (`id`,`price`, `name`, `description`) VALUES\
 					(1, 10.0, "t-shirt", "Obyčejné triko"),\
 					(2, 25.0, "trousers", "Obyčejné kalhoty"),\
 					(3, 15.0, "shirt", "Obyčejná košile");\

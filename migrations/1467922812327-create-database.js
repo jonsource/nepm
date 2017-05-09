@@ -44,7 +44,7 @@ exports.up = function(next){
 				`quantity` INTEGER NOT NULL, \
 				`unit_price` DECIMAL(6.2) NOT NULL, \
 				`name` VARCHAR(32) NOT NULL, \
-				`descirption` MEDIUMTEXT NULL DEFAULT NULL, \
+				`description` MEDIUMTEXT NULL DEFAULT NULL, \
 				`deleted` BOOLEAN NOT NULL DEFAULT 0, \
 				PRIMARY KEY (`id`) \
 			)'))
@@ -54,7 +54,7 @@ exports.up = function(next){
 				`parent_id` INTEGER NULL DEFAULT NULL, \
 				`price` DECIMAL(6.2) NULL DEFAULT NULL, \
 				`name` VARCHAR(64) NULL DEFAULT NULL, \
-				`descirption` MEDIUMTEXT NULL DEFAULT NULL, \
+				`description` MEDIUMTEXT NULL DEFAULT NULL, \
 				`deleted` BOOLEAN NOT NULL DEFAULT 0, \
 				PRIMARY KEY (`id`) \
 			)'))
