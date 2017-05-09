@@ -6,6 +6,12 @@ var Order = require('./order');
 var Product = require('./product');
 var product = new Product();
 
+var orderItemPropertiesMap = {
+	product_id: 'id',
+	name: 'name',
+	description: 'description',
+}
+
 function OrderItem (data) {
 	OrderItem.super_.call(this, data, 
 		{	table: "order_item",
@@ -20,12 +26,12 @@ function OrderItem (data) {
 
 inherits(OrderItem, BaseModel);
 
-OrderItem.prototype.create = function(data) {
+OrderItem.prototype.create = function(description) {
 
-	function getProductInstance(data) {
-		return product.findOneBy('id', data.product_id)
+	function getProductInstance(description) {
+		return product.findOneBy('id', description.product_id)
 		.then(function(instance) {
-			return instance.getByDescription(data.description)
+			return instance.getByDescription(description.description)
 			.then(function() {
 				return instance;
 			});
@@ -35,10 +41,14 @@ OrderItem.prototype.create = function(data) {
 	var ret = new this.schema.model();
 	ret.schema = this.schema;
 	
-	return getProductInstance(data)
-	.then(function(prod) {
-		console.log('data for item:', prod);
-		return ret;
+	return getProductInstance(description)
+	.then(function(productInstance) {
+		console.log('data for item:', productInstance);
+		for(item in orderItemPropertiesMap) {
+			ret.data[item] = productInstance.data[orderItemPropertiesMap[item]];
+		}
+		ret.data.order_id = description.order_id;
+		return ret.save();
 	});
 }
 

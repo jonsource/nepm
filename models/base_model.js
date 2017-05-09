@@ -211,7 +211,7 @@ BaseModel.prototype.save = function() {
 		.then( function(result) {
 			console.log(result);
 			if(result.insertId) {
-				return that.find_by('id', result.insertId);
+				return that.findOneBy('id', result.insertId);
 			} 
 		});
 	})

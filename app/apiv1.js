@@ -18,10 +18,15 @@ module.exports = function(models) {
 
 	router.post('/create_order', function(req, res, next) {
 		models.order.create(req.body.order)
+		/*.map(function(item) {
+			item.save();
+		})*/
 		.then(function(result) {
 			res.json({order: 'created', items: result});
 		});
 	});
+
+	/* Create REST routes for models */
 
 	for(model in models) {
 		if(models.hasOwnProperty(model)) {
