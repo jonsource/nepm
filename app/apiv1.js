@@ -2,6 +2,7 @@ var Promise = require('bluebird');
 var express = require('express');
 var authentication = require('./authentication');
 var restRouter = require('./rest_router');
+var log = require('debug')('nepm:apiv1')
 
 module.exports = function(models) {
 	
@@ -9,7 +10,7 @@ module.exports = function(models) {
 
 	router.use('/', function(req, res, next) {
 		if( req.method != 'GET') {
-			console.log('authenticating');
+			log('authenticating');
 			authentication.isLoggedInJson(req, res, next);
 		} else {
 			next();
@@ -51,10 +52,10 @@ module.exports = function(models) {
 	router.post('/upload', function(req, res, next) {
 		upload(req,res,function(err) {
 	        if(err) {
-	        	console.log(err);
+	        	log('Upload', err);
 	            return res.json({error: "Error uploading file."});
 	        }
-	        console.log(req.files);
+	        log('Files', req.files);
 	        res.json({success: true});
 	    });
 	});

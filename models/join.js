@@ -1,3 +1,5 @@
+var log = require('debug')('nepm:models:join')
+
 Join = function(opts) {
 	this.multi = opts.multi || false;
 	this.model = opts.model;
@@ -17,7 +19,7 @@ Join = function(opts) {
 		if((!opts.target && !opts.source) || (opts.target && opts.source)) {
 			throw new Error('Target or source (not both) of 1:N join must be defined');
 		}
-		console.log(this.model);	
+		log(this.model);	
 		this.target = opts.target;
 		this.source = opts.source;
 	}

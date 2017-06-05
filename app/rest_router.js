@@ -1,6 +1,7 @@
 var express = require('express');
 var authentication = require('./authentication');
 var promise = require('bluebird');
+var log = require('debug')('nepm:rest_router')
 
 module.exports = function(path, model, parent) {
 
@@ -8,9 +9,9 @@ module.exports = function(path, model, parent) {
 	var schema = model.schema;
 
 	function jsonData(req, res, next) {
-		//console.log("jsonData");
 		var ret={};
 		ret[res.api_response.name] = res.api_response.results;
+		log("jsonData", ret);
 		res.json(ret);
 	}
 
@@ -26,7 +27,7 @@ module.exports = function(path, model, parent) {
 			next();
 		})
 		.catch(function(err) {
-			console.log('err ', err);
+			log('err ', err);
 			res.status(404);
 			res.json({name: err.name, message:err.message});
 			throw err;
@@ -41,7 +42,7 @@ module.exports = function(path, model, parent) {
 		}
 		for (var child in object) {
 			if(object.hasOwnProperty(child) && object[child] && typeof object[child] === 'object') {
-				//console.log('shifting '+child);
+				log('shifting '+child);
 				short_object[child] = shiftDataUp(object[child]);
 			}
 		}
@@ -49,7 +50,7 @@ module.exports = function(path, model, parent) {
 	}
 
 	function shortenOutput(req, res, next) {
-		//console.log("shorten_output");
+		log("shorten_output");
 		if(!req.query.hasOwnProperty('v')) {
 			res.api_response.results = shiftDataUp(res.api_response.results);
 		}
@@ -57,7 +58,7 @@ module.exports = function(path, model, parent) {
 	}
 
 	router.use(path, function(req, res, next) {
-		console.log("api_response");
+		log("api_response");
 		res.api_response = {};
 		res.api_response.results = {};
 		res.api_response.name = schema.plural;
@@ -73,7 +74,7 @@ module.exports = function(path, model, parent) {
 	});
 
 	router.get(path, function(req, res, next) {
-		console.log("get");
+		log("get");
 		model.find()
 		.then(function(result){
 			res.api_response.results = result;
@@ -92,7 +93,7 @@ module.exports = function(path, model, parent) {
 	router.post(path, function(req, res, next) {
 		model.create(JSON.parse(req.body[schema.name]))
 		.then(function(results) {
-			console.log(results)
+			log(results)
 			res.json(response(results));
 		});
 	});

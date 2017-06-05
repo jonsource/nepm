@@ -2,6 +2,7 @@ var Promise = require('bluebird');
 var ModelUnknownProperty = require('./errors').ModelUnknownProperty;
 var ModelIntegrityError = require('./errors').ModelIntegrityError;
 var db_pool = require('../app/db_pool');
+var log = require('debug')('nepm:models:base_model')
 
 BaseModel = function(data, db_schema) {
 	this.schema = db_schema || { table: null, model: BaseModel };
@@ -80,7 +81,7 @@ BaseModel.prototype.get = function(property, id) {
 		
 		function assignResults(results, that, property, required) {
             var join = that.schema.joins[property];
-            //console.log('assign results', results);
+            log('assign results', results);
             if(required && !results.length) {
             	throw new ModelIntegrityError(that.schema.name+'.'+property+':'+id+' not found!');
             }
@@ -197,19 +198,19 @@ BaseModel.prototype.prepare_values_update = function(data) {
 
 BaseModel.prototype.save = function() {
 	var query="";
-	console.log('saving', this);
+	log('saving', this);
 	if(this.data.id) {
 		query = 'UPDATE `'+this.schema.table+'` SET '+this.prepare_values_update()+' WHERE id = '+this.data.id+' LIMIT 1';
 	} else {
 		query = 'INSERT INTO `'+this.schema.table+'` '+this.prepare_values_insert();
 	}
-	console.log(query);
+	log(query);
 	var that = this;
 	return db_pool.getConnection()
 	.then( function(connection) {
 		return connection.query(query)
 		.then( function(result) {
-			console.log(result);
+			log(result);
 			if(result.insertId) {
 				return that.findOneBy('id', result.insertId);
 			} 

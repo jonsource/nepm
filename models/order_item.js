@@ -5,6 +5,7 @@ var inherits = require('util').inherits;
 var Order = require('./order');
 var Product = require('./product');
 var product = new Product();
+var log = require('debug')('nepm:models:order_item')
 
 var orderItemPropertiesMap = {
 	product_id: 'id',
@@ -43,7 +44,7 @@ OrderItem.prototype.create = function(description) {
 	
 	return getProductInstance(description)
 	.then(function(productInstance) {
-		console.log('data for item:', productInstance);
+		log('data for item:', productInstance);
 		for(item in orderItemPropertiesMap) {
 			ret.data[item] = productInstance.data[orderItemPropertiesMap[item]];
 		}

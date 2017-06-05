@@ -7,6 +7,7 @@ var session  = require('express-session');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
+var log = require('debug')('nepm:server')
 var app      = express();
 var port     = process.env.PORT || 3000;
 var passport = require('passport');
@@ -34,12 +35,10 @@ app.models = {
 	order_item: new OrderItem(),
 	client: new Client(),
 }
-console.log('app models', app.models);
+log('app models', app.models);
 // configuration ===============================================================
 // connect to our database
 require('./config/passport')(passport, app.db_pool); // pass passport for configuration
-
-
 
 // set up our express application
 app.use(morgan('dev')); // log every request to the console
@@ -67,41 +66,4 @@ require('./app/routes.js')(app, passport); // load our routes and pass in our ap
 
 // launch ======================================================================
 app.listen(port);
-console.log('The magic happens on port ' + port);
-
-var promise = require('bluebird');
-
-/*
-Test lazy loading m:n properties
-
-app.models.product.find_by('id', 1)
-.then(function(pro) {
-	pro = pro[0];
-	console.log('pro', pro);
-	pro.get("variants").then(function(res) {
-		console.log('variants',res);
-		promise.mapSeries(res, function(val) {
-			return val.get("options").then(function() {return val;});
-		})
-		.then(function(res) {
-			console.log(res);
-			console.log(res[0].data);
-		});
-	});
-
-});
-*/
-
-/*
-Test lazy loading 1:n properties
-
-app.models.customer.find_by('id', 3)
-.then(function(cus) {
-	cus = cus[0];
-	console.log('cus', cus);
-	cus.get("orders").then(function(res) {
-		console.log('orders',res);
-		console.log('cus2', cus);
-	});
-});
-*/
+log('The magic happens on port ' + port);

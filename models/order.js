@@ -5,6 +5,7 @@ var inherits = require('util').inherits;
 var OrderItem = require('./order_item');
 var orderItem = new OrderItem();
 var Customer = require('./customer');
+var log = require('debug')('nepm:models:order')
 
 function Order (data) {
 	Order.super_.call(this, data, 
@@ -32,7 +33,7 @@ Order.prototype.create = function(orderData) {
 			orderItem.create.call(orderItem, itemData);
 		})
 		.then(function(items) {
-			console.log('items:', items);
+			log('items:', items);
 			return ret;
 		});
 	});
