@@ -19,6 +19,7 @@ var Option = require('./models/option');
 var Customer = require('./models/customer');
 var Order = require('./models/order');
 var OrderItem = require('./models/order_item');
+var OrderItemOption = require('./models/order_item_option');
 var Client = new createModel( 
 			{	table: "client", 
 				name: "client",
@@ -33,6 +34,7 @@ app.models = {
 	customer: new Customer(),
 	order: new Order(),
 	order_item: new OrderItem(),
+	order_item_option: new OrderItemOption(),
 	client: new Client(),
 }
 log('app models', app.models);

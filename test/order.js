@@ -23,7 +23,7 @@ describe("Order tests", function() {
                          {property: 'variants', id:2, children: [{property: 'options', id:6}]} ];
         var data = {order:[{product_id: 1, description: product1}, {product_id: 2, description: product2}]};
         request({method:'post', uri: base_url + '/v1/create_order', headers:{cookie:'connect.sid='+session}, body: data, json: true}, function(error, response, body) {
-            console.log(body);
+            console.log('body', body);
             done();
         });
     });

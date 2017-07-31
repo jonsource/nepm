@@ -210,7 +210,7 @@ BaseModel.prototype.save = function() {
 	.then( function(connection) {
 		return connection.query(query)
 		.then( function(result) {
-			log(result);
+			log("%o", result);
 			if(result.insertId) {
 				return that.findOneBy('id', result.insertId);
 			} 
