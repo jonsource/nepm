@@ -30,7 +30,7 @@ Order.prototype.create = function(orderData) {
 	.then(function(order) {
 		return Promise.map(orderData, function(itemData) {
 			itemData.order_id = order.data.id;
-			orderItem.create.call(orderItem, itemData);
+			return orderItem.create.call(orderItem, itemData);
 		})
 		.then(function(items) {
 			log('items:', items);

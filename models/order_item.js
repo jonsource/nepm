@@ -51,6 +51,7 @@ OrderItem.prototype.create = function(description) {
 		}
 		ret.data.order_id = description.order_id;
 		return ret.save()
+	
 		.then(function(savedItem) {
 			log('order_item %O', savedItem);
 			if(!productInstance.data.variants) {
