@@ -8,12 +8,6 @@ var Product = require('./product');
 var product = new Product();
 var log = require('debug')('nepm:models:order_item')
 
-var orderItemPropertiesMap = {
-	product_id: 'id',
-	name: 'name',
-	description: 'description',
-}
-
 function OrderItem (data) {
 	OrderItem.super_.call(this, data, 
 		{	table: "order_item",
@@ -28,6 +22,35 @@ function OrderItem (data) {
 }
 
 inherits(OrderItem, BaseModel);
+
+OrderItem.prototype._mapFromProductInstance = function(productInstance) {
+	var orderItemPropertiesMap = {
+		product_id: 'id',
+		name: 'name',
+		description: 'description',
+	};
+
+	log('data for item: %O', productInstance);
+	// maps product instance to irder item
+	for(item in orderItemPropertiesMap) {
+		this.data[item] = productInstance.data[orderItemPropertiesMap[item]];
+		log('mapping data %s %O', item, productInstance.data[orderItemPropertiesMap[item]]);
+	}
+
+	if (productInstance.data['variants']) {
+		this.data.options=[];
+		for (i=0; i<productInstance.data['variants'].length; i++) {
+			var variant = productInstance.data['variants'][i];
+			var opt = new OrderItemOption();
+			log('mapping variant %O %O', variant, opt);
+			opt.data.variant_name = variant.data.name;
+			opt.data.option_name = variant.data.options[0].data.name;
+			opt.data.price = variant.data.options[0].data.price;
+			this.data.options.push(opt);
+		}
+	}
+	return this;
+}
 
 OrderItem.prototype.create = function(description) {
 
@@ -44,14 +67,17 @@ OrderItem.prototype.create = function(description) {
 	var ret = new this.schema.model();
 		
 	return getProductInstance(description)
-	.then(function(productInstance) {
-		log('data for item: %O', productInstance);
-		for(item in orderItemPropertiesMap) {
-			ret.data[item] = productInstance.data[orderItemPropertiesMap[item]];
-		}
+	.then(ret._mapFromProductInstance.bind(ret))
+	.then(function(mappedItem) {
+		log('saving order item: %O', mappedItem)
+		mappedItem.data.order_id = description.order_id;
+		return mappedItem.save()
+	});
+	/*.then(function(productInstance) {
+		
 		ret.data.order_id = description.order_id;
+		log('saving order: %O', ret)
 		return ret.save()
-	
 		.then(function(savedItem) {
 			log('order_item %O', savedItem);
 			if(!productInstance.data.variants) {
@@ -71,7 +97,7 @@ OrderItem.prototype.create = function(description) {
 				.then(function() {log("created %O", created);return created});
 			});
 		});
-	});
+	});*/
 }
 
 module.exports = OrderItem

@@ -172,7 +172,7 @@ BaseModel.prototype.prepare_values_insert = function(data) {
   		if(key == 'id') {
   			continue;
   		}
-  		if (data.hasOwnProperty(key)) {
+  		if (data.hasOwnProperty(key) && (!this.schema.joins || !this.schema.joins.hasOwnProperty(key))) {
     		cols.push('`'+key+'`');
     		vals.push(this.sanitize_string(data[key]));
   		}
@@ -189,15 +189,25 @@ BaseModel.prototype.prepare_values_update = function(data) {
   		if(key == 'id') {
   			continue;
   		}
-  		if (data.hasOwnProperty(key)) {
+  		if (data.hasOwnProperty(key) && !this.schema.joins.hasOwnProperty(key)) {
     		set.push('`'+key+'` = '+this.sanitize_string(data[key]));
     	}
 	}
 	return set.join(', ');
 }
 
+BaseModel.prototype._getDependantJoins = function() {
+	var ret = [];
+	for (var key in this.schema.joins) {
+		if (this.schema.joins[key].target) {
+			ret.push(key);
+		}
+	}
+	return ret;
+}
+
 BaseModel.prototype.save = function() {
-	var query="";
+	var query = "";
 	log('saving', this);
 	if(this.data.id) {
 		query = 'UPDATE `'+this.schema.table+'` SET '+this.prepare_values_update()+' WHERE id = '+this.data.id+' LIMIT 1';
@@ -212,7 +222,28 @@ BaseModel.prototype.save = function() {
 		.then( function(result) {
 			if(result.insertId) {
 				that.data.id = result.insertId;
-				return that;
+				log('after save %O', that)
+				// recoursively set id to all joins
+				var subSaves = [];
+				var dependant = that._getDependantJoins()
+				for (var j=0; j<dependant.length; j++) {
+					var key = dependant[j];
+					if (that.data.hasOwnProperty(key)) {
+						for(var i=0; i<that.data[key].length; i++) {
+							that.data[key][i].data[that.schema.name+'_id'] = that.data.id;
+							subSaves.push(that.data[key][i]);
+						}
+					}
+				}
+				return Promise.map(subSaves, function(subSave) {
+					log("try subSave %O", subSave);
+					// recoursively save joins
+					return subSave.save();
+				})
+				.then(function() {
+					log('after saving %O', that)
+					return that;
+				});
 			} 
 		});
 	})
