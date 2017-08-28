@@ -67,37 +67,7 @@ OrderItem.prototype.create = function(description) {
 	var ret = new this.schema.model();
 		
 	return getProductInstance(description)
-	.then(ret._mapFromProductInstance.bind(ret))
-	.then(function(mappedItem) {
-		log('saving order item: %O', mappedItem)
-		mappedItem.data.order_id = description.order_id;
-		return mappedItem.save()
-	});
-	/*.then(function(productInstance) {
-		
-		ret.data.order_id = description.order_id;
-		log('saving order: %O', ret)
-		return ret.save()
-		.then(function(savedItem) {
-			log('order_item %O', savedItem);
-			if(!productInstance.data.variants) {
-				productInstance.data.variants = [];
-			}
-			return Promise.map(productInstance.data.variants, function(variant) {
-				log('option: %s %s', variant.data.name, variant.data.options[0].data.name);
-				var opt = new OrderItemOption({ order_item_id: savedItem.data.id,
-												variant_name: variant.data.name,
-										   		option_name: variant.data.options[0].data.name});
-				return opt.save()
-			})
-			.then(function() {
-				var created;
-				return ret.findOneBy('id', savedItem.data.id)
-				.then(function(c) {created = c; return c.get('options')})
-				.then(function() {log("created %O", created);return created});
-			});
-		});
-	});*/
+	.then(ret._mapFromProductInstance.bind(ret));
 }
 
 module.exports = OrderItem

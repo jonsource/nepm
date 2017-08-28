@@ -20,6 +20,9 @@ module.exports = function(models) {
 	router.post('/create_order', function(req, res, next) {
 		models.order.create(req.body.order)
 		.then(function(result) {
+			return result.save();
+		})
+		.then(function(result) {
 			res.json({order: 'created2', items: result});
 		});
 	});

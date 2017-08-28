@@ -26,16 +26,12 @@ Order.prototype.create = function(orderData) {
 	
 	var ret = new this.schema.model();
 	ret.schema = this.schema;
-	return ret.save()
-	.then(function(order) {
-		return Promise.map(orderData, function(itemData) {
-			itemData.order_id = order.data.id;
-			return orderItem.create.call(orderItem, itemData);
-		})
-		.then(function(items) {
-			log('items:', items);
-			return ret;
-		});
+	return Promise.map(orderData, function(itemData) {
+		return orderItem.create.call(orderItem, itemData);
+	})
+	.then(function(items) {
+		ret.data.items=items;
+		return ret;
 	});
 }
 
