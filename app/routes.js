@@ -1,7 +1,8 @@
 var extend = require('xtend');
 var authentication = require('./authentication');
-var log = require('debug')('nepm:rest_router')
-var cors = require('cors')
+var log = require('debug')('nepm:rest_router');
+var cors = require('cors');
+var jwt = require('jsonwebtoken');
 
 // app/routes.js
 module.exports = function(app, passport) {
@@ -72,11 +73,9 @@ module.exports = function(app, passport) {
             {
             	username: user.username,
             	id: user.id,
-            	token: "fake_jwt_token"
+            	token: jwt.sign(user.id, passport.superSecret)
             })
-        })
-
-        (req, res, next);
+        })(req, res, next);
     });
 
     // =====================================
@@ -123,5 +122,4 @@ module.exports = function(app, passport) {
 	});
 	app.use('/v1', require('./apiv1')(app.models));
 
-};
-;
+}

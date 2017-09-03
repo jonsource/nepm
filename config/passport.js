@@ -6,6 +6,7 @@ var LocalStrategy   = require('passport-local').Strategy;
 // load up the user model
 var dbconfig = require('./database')
 var bcrypt = require('bcrypt-nodejs');
+var log = require('debug')('nepm:passport');
 
 // expose this function to our app using module.exports
 module.exports = function(passport, db_pool) {
@@ -27,6 +28,8 @@ module.exports = function(passport, db_pool) {
             done(err, rows[0]);
         });
     });
+
+    passport.superSecret = "klokan";
 
     // =========================================================================
     // LOCAL SIGNUP ============================================================
@@ -101,4 +104,29 @@ module.exports = function(passport, db_pool) {
             });
         })
     );
-};
+
+
+    var JwtStrategy = require('passport-jwt').Strategy,
+    ExtractJwt = require('passport-jwt').ExtractJwt;
+    var opts = {}
+    opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+    opts.secretOrKey = passport.superSecret;
+    //opts.issuer = 'accounts.examplesoft.com';
+    //opts.audience = 'yoursite.net';
+    passport.use('jwt',
+        new JwtStrategy(opts, function(jwt_payload, done) {
+        log("jwt", jwt_payload);
+        id = jwt_payload;
+        db_pool.query("SELECT * FROM " + dbconfig.users_table + " WHERE id = ?",[jwt_payload], function(err, rows){
+            if (err) {
+                return done(err, false);
+            }
+            if (!rows.length) {
+                return done(null, false);
+                // or you could create a new account
+            } else {
+                return done(null, rows[0]);
+            }                
+        });
+    }));
+}

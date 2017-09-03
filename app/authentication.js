@@ -1,3 +1,5 @@
+var passport = require('passport');
+
 module.exports = {
 	// route middleware to make sure
 	isLoggedIn: function(req, res, next) {
@@ -16,5 +18,9 @@ module.exports = {
 			return next();
 		
 		res.json({error:'not authenticated'});
+	},
+
+	isLoggedInJwt: function(req, res, next) {
+		return passport.authenticate('jwt', { session: false })(req, res, next);
 	}
 }

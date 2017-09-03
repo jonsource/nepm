@@ -10,8 +10,8 @@ module.exports = function(models) {
 
 	router.use('/', function(req, res, next) {
 		if( req.method != 'GET' && req.method != 'OPTIONS') {
-			log('authenticating');
-			authentication.isLoggedInJson(req, res, next);
+			log('protected route authenticating');
+			authentication.isLoggedInJwt(req, res, next);
 		} else {
 			next();
 		}

@@ -58,10 +58,6 @@ module.exports = function(path, model, parent) {
 		next();
 	}
 
-	router.options(path, cors(), function(req, res, next) {
-		//res.header('Access-Control-Allow-Origin', '*');
-	});
-
 	router.use(path, cors(), function(req, res, next) {
 		log("api_response");
 		res.api_response = {};
@@ -72,7 +68,8 @@ module.exports = function(path, model, parent) {
 
 	router.get(path, function(req, res, next) {
 		if(model.schema.protected) {
-			authentication.isLoggedInJson(req, res, next);
+			log('protected route authenticating');
+			authentication.isLoggedInJwt(req, res, next);
 		} else {
 			next();
 		}
