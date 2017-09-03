@@ -1,7 +1,8 @@
 var express = require('express');
 var authentication = require('./authentication');
 var promise = require('bluebird');
-var log = require('debug')('nepm:rest_router')
+var log = require('debug')('nepm:rest_router');
+var cors = require('cors');
 
 module.exports = function(path, model, parent) {
 
@@ -10,7 +11,7 @@ module.exports = function(path, model, parent) {
 
 	function jsonData(req, res, next) {
 		var ret={};
-		ret[res.api_response.name] = res.api_response.results;
+		ret = res.api_response.results;
 		log("jsonData", ret);
 		res.json(ret);
 	}
@@ -19,28 +20,29 @@ module.exports = function(path, model, parent) {
 		var lazy_load = [];
 		if(!req.query.load) {
 			next();
+		} else {
+			promise.map(res.api_response.results, function(object) {
+				return object.getByChain(req.query.load);
+			})
+			.then(function() {
+				next();
+			})
+			.catch(function(err) {
+				log('err ', err);
+				res.status(404);
+				res.json({name: err.name, message:err.message});
+				throw err;
+			});
 		}
-		promise.map(res.api_response.results, function(object) {
-			return object.getByChain(req.query.load);
-		})
-		.then(function() {
-			next();
-		})
-		.catch(function(err) {
-			log('err ', err);
-			res.status(404);
-			res.json({name: err.name, message:err.message});
-			throw err;
-		});
 	}
 
 	function shiftDataUp(object) {
 		var short_object = object;
 		if(object.data && object.schema) {
-			object = object.data;
-			short_object = {id:object.id, name: object.name};
+			short_object = object.data;
+			delete short_object.deleted;
 		}
-		for (var child in object) {
+		for (var child in short_object) {
 			if(object.hasOwnProperty(child) && object[child] && typeof object[child] === 'object') {
 				log('shifting '+child);
 				short_object[child] = shiftDataUp(object[child]);
@@ -50,14 +52,17 @@ module.exports = function(path, model, parent) {
 	}
 
 	function shortenOutput(req, res, next) {
-		log("shorten_output");
 		if(!req.query.hasOwnProperty('v')) {
 			res.api_response.results = shiftDataUp(res.api_response.results);
 		}
 		next();
 	}
 
-	router.use(path, function(req, res, next) {
+	router.options(path, cors(), function(req, res, next) {
+		//res.header('Access-Control-Allow-Origin', '*');
+	});
+
+	router.use(path, cors(), function(req, res, next) {
 		log("api_response");
 		res.api_response = {};
 		res.api_response.results = {};

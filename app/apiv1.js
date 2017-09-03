@@ -9,7 +9,7 @@ module.exports = function(models) {
 	var router = express.Router({mergeParams: true});
 
 	router.use('/', function(req, res, next) {
-		if( req.method != 'GET') {
+		if( req.method != 'GET' && req.method != 'OPTIONS') {
 			log('authenticating');
 			authentication.isLoggedInJson(req, res, next);
 		} else {

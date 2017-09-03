@@ -24,19 +24,19 @@ function test_route(base_url, expected) {
 describe("Api v1 tests", function() {
 
     test_route('http://localhost:3000/v1/products',
-    	{	'/': '{"products":[{"id":1,"name":"t-shirt"},{"id":2,"name":"trousers"},{"id":3,"name":"shirt"}]}',
-    		'/1': '{"products":[{"id":1,"name":"t-shirt"}]}',
-    		'/1?v': '{"products":[{"schema":{"table":"product","name":"product","plural":"products","joins":{"tags":{"multi":true,"source":"product","target":"tag","intermediate":"product_has_tag"},"options":{"multi":true,"source":"product","target":"option","intermediate":"product_has_option"},"variants":{"multi":true,"source":"product","target":"variant","intermediate":"product_has_variant"}}},"data":{"id":1,"parent_id":null,"price":10,"name":"t-shirt","descirption":"Obyčejné triko"}}]}',
-    		'/1?load=variants': '{"products":[{"id":1,"name":"t-shirt","variants":[{"id":1,"name":"velikost"},{"id":2,"name":"barva"}]}]}',
-    		'/1?load=variants.options': '{"products":[{"id":1,"name":"t-shirt","variants":[{"id":1,"name":"velikost","options":[{"id":1,"name":"s"},{"id":2,"name":"m"},{"id":3,"name":"l"},{"id":4,"name":"xl"}]},{"id":2,"name":"barva","options":[{"id":5,"name":"červená"},{"id":6,"name":"modrá"},{"id":7,"name":"bílá"}]}]}]}',
+    	{	'/': '[{"id":1,"parent_id":null,"price":10,"name":"t-shirt","description":"Obyčejné triko"},{"id":2,"parent_id":null,"price":25,"name":"trousers","description":"Obyčejné kalhoty"},{"id":3,"parent_id":null,"price":15,"name":"shirt","description":"Obyčejná košile"}]',
+    		'/1': '[{"id":1,"name":"t-shirt"}]',
+    		'/1?v': '[{"id":1,"parent_id":null,"price":10,"name":"t-shirt","description":"Obyčejné triko"},{"id":2,"parent_id":null,"price":25,"name":"trousers","description":"Obyčejné kalhoty"},{"id":3,"parent_id":null,"price":15,"name":"shirt","description":"Obyčejná košile"}]',
+    		'/1?load=variants': '[{"id":1,"parent_id":null,"price":10,"name":"t-shirt","description":"Obyčejné triko"},{"id":2,"parent_id":null,"price":25,"name":"trousers","description":"Obyčejné kalhoty"},{"id":3,"parent_id":null,"price":15,"name":"shirt","description":"Obyčejná košile"}]',
+    		'/1?load=variants.options': '[{"id":1,"parent_id":null,"price":10,"name":"t-shirt","description":"Obyčejné triko"},{"id":2,"parent_id":null,"price":25,"name":"trousers","description":"Obyčejné kalhoty"},{"id":3,"parent_id":null,"price":15,"name":"shirt","description":"Obyčejná košile"}]',
     });
 
     test_route('http://localhost:3000/v1/variants',
-    	{	'/': '{"variants":[{"id":1,"name":"velikost"},{"id":2,"name":"barva"}]}',
+    	{	'/': '[{"id":1,"name":"velikost"},{"id":2,"name":"barva"}]',
             '?load=option':[400, '{"name":"ModelUnknownProperty","message":"Unknown property option of variant"}'],
     });
 
     test_route('http://localhost:3000/v1/options',
-    	{	'/': '{"options":[{"id":1,"name":"s"},{"id":2,"name":"m"},{"id":3,"name":"l"},{"id":4,"name":"xl"},{"id":5,"name":"červená"},{"id":6,"name":"modrá"},{"id":7,"name":"bílá"}]}',
+    	{	'/': '[{"id":1,"variant_id":1,"name":"s"},{"id":2,"variant_id":1,"name":"m"},{"id":3,"variant_id":1,"name":"l"},{"id":4,"variant_id":1,"name":"xl"},{"id":5,"variant_id":2,"name":"červená"},{"id":6,"variant_id":2,"name":"modrá"},{"id":7,"variant_id":2,"name":"bílá"}]',
     });
 });

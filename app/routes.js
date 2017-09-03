@@ -1,5 +1,7 @@
 var extend = require('xtend');
 var authentication = require('./authentication');
+var log = require('debug')('nepm:rest_router')
+var cors = require('cors')
 
 // app/routes.js
 module.exports = function(app, passport) {
@@ -38,11 +40,14 @@ module.exports = function(app, passport) {
 	});
 
 	// process the login form
-	app.post('/login', passport.authenticate('local-login', {
+	app.post('/login', function(req,res,next) {
+		log("authenticate endpoint %O", req.body);
+		passport.authenticate('local-login', {
             successRedirect : '/profile', // redirect to the secure profile section
             failureRedirect : '/login', // redirect back to the signup page if there is an error
             failureFlash : true // allow flash messages
-		}),
+		})(req,res,next)
+		},
         function(req, res) {
             if (req.body.remember) {
               req.session.cookie.maxAge = 1000 * 60 * 3;
@@ -52,7 +57,29 @@ module.exports = function(app, passport) {
         res.redirect('/');
     });
 
-	// =====================================
+	app.options('/authenticate', cors());
+    app.post('/authenticate', cors(), function(req, res, next) {
+        log("authenticate endpoint ", req.body);
+        passport.authenticate('local-login', function(err, user, info) {
+            log(err, user, info);
+            if (err) { return next(err) }
+            if (!user) { 
+            	log("authentication failed", req.data);
+            	return res.json({error: "authentication failed"}) 
+            }
+            log("authenticated user", user.username);
+            return res.json(
+            {
+            	username: user.username,
+            	id: user.id,
+            	token: "fake_jwt_token"
+            })
+        })
+
+        (req, res, next);
+    });
+
+    // =====================================
 	// SIGNUP ==============================
 	// =====================================
 	// show the signup form
@@ -91,6 +118,10 @@ module.exports = function(app, passport) {
 		res.render('upload.ejs');
 	});
 
+	app.options('/v1', cors(), function(req, res) {
+		log("zlo");
+	});
 	app.use('/v1', require('./apiv1')(app.models));
 
 };
+;
