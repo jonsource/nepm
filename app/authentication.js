@@ -12,13 +12,13 @@ module.exports = {
 		res.redirect('/');
 	},
 
-	isLoggedInJson: function(req, res, next) {
+	/*isLoggedInJson: function(req, res, next) {
 		// if user is authenticated in the session, carry on
 		if (req.isAuthenticated())
 			return next();
 		
 		res.json({error:'not authenticated'});
-	},
+	},*/
 
 	isLoggedInJwt: function(req, res, next) {
 		return passport.authenticate('jwt', { session: false })(req, res, next);

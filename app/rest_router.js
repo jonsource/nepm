@@ -93,36 +93,35 @@ module.exports = function(path, model, parent) {
 	}, lazyLoad, shortenOutput, jsonData);
 
 	router.post(path, function(req, res, next) {
-		model.create(JSON.parse(req.body[schema.name]))
+		model.create(req.body[schema.name])
 		.then(function(results) {
-			log(results)
-			res.json(response(results));
+			next();
 		});
-	});
+	}, shortenOutput, jsonData);
 
 	router.put(path+'/:id', function(req, res, next) {
 		var id = req.params.id
-		model.find_by('id', id)
+		model.findBy('id', id)
 		.then(function(results) {
 			if(!results) {
-				res.json({products:[], error: schema.name+' '+id+' not found'});
+				res.json({error: schema.name+' '+id+' not found'});
 			}
-			return results[0].update(JSON.parse(req.body[schema.name]));
+			return results[0].update(req.body);
 		})
 		.then(function() {
-			return model.find_by('id', id);
+			return model.findBy('id', id);
 		})
 		.then(function(results) {
-			res.json(response(results));
+			next();
 		});
-	});
+	}, shortenOutput, jsonData);
  
 	router.delete(path+'/:id', function(req, res, next) {
 		var id = req.params.id
-		model.find_by('id', id)
+		model.findBy('id', id)
 		.then(function(results) {
 			if(!results) {
-				res.json(response(results, {error: schema.name+' '+id+' not found'}));
+				res.json({error: schema.name+' '+id+' not found'});
 			}
 			return results[0].delete();
 		})
@@ -131,9 +130,9 @@ module.exports = function(path, model, parent) {
 		})
 		.then(function(results) {
 			if(!results)
-			{	res.json(response(results));
+			{	res.json(results);
 			} else {
-				res.json(response(results, {error: 'Failed to delete '+schema.name+' '+id}));
+				res.json({error: 'Failed to delete '+schema.name+' '+id});
 			}
 		});
 	});

@@ -8,16 +8,9 @@ module.exports = function(models) {
 	
 	var router = express.Router({mergeParams: true});
 
-	router.use('/', function(req, res, next) {
-		if( req.method != 'GET' && req.method != 'OPTIONS') {
-			log('protected route authenticating');
-			authentication.isLoggedInJwt(req, res, next);
-		} else {
-			next();
-		}
-	});
+	/* unprotected route for creating orders */
 
-	router.post('/create_order', function(req, res, next) {
+    router.post('/create_order', function(req, res, next) {
 		models.order.create(req.body.order)
 		.then(function(result) {
 			return result.save();
@@ -25,6 +18,15 @@ module.exports = function(models) {
 		.then(function(result) {
 			res.json({order: 'created2', items: result});
 		});
+	});
+	
+	router.use('/', function(req, res, next) {
+		if( req.method != 'GET' && req.method != 'OPTIONS') {
+			log('protected route authenticating');
+			authentication.isLoggedInJwt(req, res, next);
+		} else {
+			next();
+		}
 	});
 
 	/* Create REST routes for models */
